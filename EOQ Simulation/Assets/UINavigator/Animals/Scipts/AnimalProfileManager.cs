@@ -1,8 +1,11 @@
 using EPQ.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using static EPQ.Animals.AnimalProfile;
 
 namespace EPQ.Animals
 {
@@ -10,10 +13,18 @@ namespace EPQ.Animals
     {
         public int Index;
         public TMP_InputField Name;
+        public Image ColorCode;
 
         public void SetupWithProfile(AnimalProfile profile)
         {
             SetName(profile.Name);
+            ColorCode.color = profile.ColorCode;
+            profile.OnColorChange += OnColorChange;
+        }
+
+        public void ChangeColor()
+        {
+            AnimalUINavigator.main.OpenColorCodeUI(Index);
         }
         public void SetName(string name)
         {
@@ -33,6 +44,11 @@ namespace EPQ.Animals
         public void DeleteProfile()
         {
             AnimalUINavigator.main.DeleteAnimal(Index);
+        }
+
+        public void OnColorChange(object sender, ColorChangeArgs e)
+        {
+            ColorCode.color = e.NewColor;
         }
     }
 }

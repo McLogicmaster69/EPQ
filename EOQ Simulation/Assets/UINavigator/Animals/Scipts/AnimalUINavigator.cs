@@ -1,4 +1,5 @@
 using EPQ.Animals;
+using EPQ.Colors;
 using EPQ.Data;
 using EPQ.Foodweb;
 using EPQ.Foodweb.Nodes;
@@ -31,10 +32,16 @@ namespace EPQ.Animals
 
         public List<AnimalProfile> Profiles = new List<AnimalProfile>();
 
+        [Header("Other")]
+        public GameObject LonelyText;
+        public GameObject ColorCodeUI;
+
+        private const int ItemsPerPage = 5;
+
         private List<GameObject> profileObjects = new List<GameObject>();
         private int CurrentPage = 0;
-        private const int ItemsPerPage = 5;
         private int CurrentIDCount = 0;
+        private int CurrentColorIndex = -1;
 
         private void Awake()
         {
@@ -42,6 +49,7 @@ namespace EPQ.Animals
         }
         private void Start()
         {
+            ColorCodeUI.SetActive(false);
             UpdateButtons();
         }
 
@@ -68,8 +76,15 @@ namespace EPQ.Animals
 
         public void CreateAnimal()
         {
+            // Create profile and assign node
             AnimalProfile newProfile = AnimalProfile.BlankProfile(CurrentIDCount);
             newProfile.Node = CreateNode(newProfile).GetComponent<NodeManager>();
+
+            // Give color code
+            if (Profiles.Count != 0)
+                newProfile.ColorCode = Profiles[Profiles.Count - 1].ColorCode;
+
+            // Update UI
             Profiles.Add(newProfile);
             CurrentIDCount++;
             UpdateButtons();
@@ -77,10 +92,27 @@ namespace EPQ.Animals
         }
         public void DeleteAnimal(int index)
         {
+            if (index == CurrentColorIndex)
+                CloseColorCodeUI();
+
             Profiles[index].DestroyNode();
             Profiles.RemoveAt(index);
             UpdateButtons();
             UpdateUI();
+        }
+        public void OpenColorCodeUI(int index)
+        {
+            ColorCodeUI.SetActive(true);
+
+            ColorCodeManager colorCode = ColorCodeUI.GetComponent<ColorCodeManager>();
+            colorCode.CurrentIndex = index;
+            colorCode.SetupColor(Profiles[index].ColorCode);
+            CurrentColorIndex = index;
+        }
+        public void CloseColorCodeUI()
+        {
+            ColorCodeUI.SetActive(false);
+            CurrentColorIndex = -1;
         }
 
         private GameObject CreateNode(AnimalProfile profile)
@@ -93,11 +125,24 @@ namespace EPQ.Animals
 
         public void UpdateUI()
         {
+            // Clear old UI list
             for (int i = 0; i < profileObjects.Count; i++)
             {
+                AnimalProfileManager manager = profileObjects[i].GetComponent<AnimalProfileManager>();
+                Profiles[manager.Index].OnColorChange -= manager.OnColorChange;
                 Destroy(profileObjects[i]);
             }
             profileObjects = new List<GameObject>();
+
+            // Display lonely text
+            if(Profiles.Count == 0)
+            {
+                LonelyText.SetActive(true);
+                return;
+            }
+            LonelyText.SetActive(false);
+
+            // Append new UI elements
             for (int i = CurrentPage * ItemsPerPage; i < ItemsPerPage * (CurrentPage + 1); i++)
             {
                 if (i >= Profiles.Count)
