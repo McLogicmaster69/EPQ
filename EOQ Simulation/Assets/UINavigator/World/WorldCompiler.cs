@@ -9,12 +9,18 @@ namespace EPQ.Compiler
 {
     public class WorldCompiler : MonoBehaviour
     {
-        public const int WORLD_SIZE = 100;
+        public const int WORLD_SIZE = 50;
 
         public TMP_Dropdown WorldType;
+        public TMP_InputField WorldSeed;
 
         public void CompileAndRun()
         {
+            if (string.IsNullOrEmpty(WorldSeed.text))
+                WorldSeed.text = Random.Range(0, 99999999).ToString();
+
+            Random.InitState(WorldSeed.text.GetHashCode());
+
             List<CompiledAnimalProfile> profiles = new List<CompiledAnimalProfile>();
             for (int i = 0; i < AnimalUINavigator.main.Profiles.Count; i++)
             {
@@ -36,6 +42,7 @@ namespace EPQ.Compiler
 
             // SETUP WORLD
             WorldManager.main.SetupWorld(world, animals, profiles);
+            WorldManager.main.DisplayWorld();
         }
 
         private void BlankGeneration(ref World<int> world)
@@ -47,6 +54,15 @@ namespace EPQ.Compiler
                     world.SetCell(x, y, 0);
                 }
             }
+        }
+        private void RiversGeneration(ref World<int> world)
+        {
+
+        }
+
+        private void LakeGeneration(ref World<int> world)
+        {
+
         }
     }
 }
