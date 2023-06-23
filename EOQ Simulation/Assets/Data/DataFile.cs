@@ -7,6 +7,8 @@ namespace EPQ.Data
     [System.Serializable]
     public class DataFile
     {
+        public string Version;
+
         //
         // ANIMALS
         //

@@ -1,3 +1,4 @@
+using EPQ.Foodweb.Nodes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -8,6 +9,9 @@ namespace EPQ.Foodweb.Connections
     {
         public RectTransform Target1;
         public RectTransform Target2;
+        public NodeManager Target1Node;
+        public NodeManager Target2Node;
+        public Material Gradient;
         public float Thickness = 5f;
         public int ID;
 
@@ -24,6 +28,7 @@ namespace EPQ.Foodweb.Connections
         {
             if (Target1.gameObject.activeSelf && Target2.gameObject.activeSelf)
             {
+                // ADJUST POSITION
                 if (Target1.localPosition == Target2.localPosition)
                 {
                     image.enabled = false;
@@ -34,6 +39,28 @@ namespace EPQ.Foodweb.Connections
                 Vector3 dif = Target2.localPosition - Target1.localPosition;
                 rectTransform.sizeDelta = new Vector3(dif.magnitude, Thickness);
                 rectTransform.rotation = Quaternion.Euler(new Vector3(0, 0, 180 * Mathf.Atan(dif.y / dif.x) / Mathf.PI));
+
+                // CHANGE GRADIENT
+                if (PlaygroundNavigator.main.Connections[ID].TwoWay)
+                {
+                    image.material = null;
+                }
+                else if (PlaygroundNavigator.main.Connections[ID].ID1 == Target1Node.Profile.ID)
+                {
+                    image.material = Gradient;
+                    if (Target1.localPosition.x < Target2.localPosition.x)
+                        rectTransform.localScale = new Vector3(-1, -1, 1);
+                    else
+                        rectTransform.localScale = new Vector3(1, 1, 1);
+                }
+                else
+                {
+                    image.material = Gradient;
+                    if (Target1.localPosition.x < Target2.localPosition.x)
+                        rectTransform.localScale = new Vector3(1, 1, 1);
+                    else
+                        rectTransform.localScale = new Vector3(-1, -1, 1);
+                }
             }
         }
         void IPointerClickHandler.OnPointerClick(PointerEventData eventData)

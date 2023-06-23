@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static EPQ.Animals.AnimalProfile;
 
 namespace EPQ.Foodweb.Nodes
 {
@@ -12,6 +13,7 @@ namespace EPQ.Foodweb.Nodes
         public AnimalProfile Profile;
         public TMP_Text NameText;
         public GameObject CreateConnectionButton;
+        public Image ColorCode;
 
         private void Update()
         {
@@ -31,6 +33,10 @@ namespace EPQ.Foodweb.Nodes
         {
             PlaygroundNavigator.main.NukeID(Profile.ID);
             Destroy(transform.gameObject);
+        }
+        public void ChangeColorCode(object sender, ColorChangeArgs e)
+        {
+            ColorCode.color = e.NewColor;
         }
     }
 }

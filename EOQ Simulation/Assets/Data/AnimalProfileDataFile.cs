@@ -7,7 +7,11 @@ namespace EPQ.Data
     [System.Serializable]
     public class AnimalProfileDataFile
     {
-        public string Name;
         public int ID;
+        public string Name;
+
+        public float r;
+        public float g;
+        public float b;
     }
 }

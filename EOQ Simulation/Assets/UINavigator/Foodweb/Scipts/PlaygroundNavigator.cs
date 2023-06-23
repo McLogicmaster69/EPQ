@@ -122,9 +122,13 @@ namespace EPQ.Foodweb
                 }
 
                 GameObject o = Instantiate(LineConnector, LineParent);
-                o.GetComponent<NodeLineConnector>().Target1 = StartNode.GetComponent<RectTransform>();
-                o.GetComponent<NodeLineConnector>().Target2 = endNode.GetComponent<RectTransform>();
-                o.GetComponent<NodeLineConnector>().ID = CurrentLineID;
+                NodeLineConnector connector = o.GetComponent<NodeLineConnector>();
+
+                connector.Target1 = StartNode.GetComponent<RectTransform>();
+                connector.Target2 = endNode.GetComponent<RectTransform>();
+                connector.Target1Node = StartNode;
+                connector.Target2Node = endNode;
+                connector.ID = CurrentLineID;
                 CreatingConnection = false;
 
                 Connections.Add(new LineConnection() { ID1 = StartNode.Profile.ID, ID2 = endNode.Profile.ID, TwoWay = false, GameObject = o, LineID = CurrentLineID });
@@ -207,8 +211,34 @@ namespace EPQ.Foodweb
             COM.Connector = LC.GameObject.GetComponent<NodeLineConnector>();
         }
 
+        public PlaygroundDataFile SavePlaygroundFile()
+        {
+            PlaygroundDataFile PDF = new PlaygroundDataFile();
+            PDF.CurrentLineID = CurrentLineID;
+            return PDF;
+        }
+        public LineConnectionDataFile[] SaveLineConnectionFiles()
+        {
+            List<LineConnectionDataFile> files = new List<LineConnectionDataFile>();
 
-        public void LoadFromFile(DataFile file)
+            for (int i = 0; i < Connections.Count; i++)
+            {
+                LineConnectionDataFile LCDF = new LineConnectionDataFile();
+                LCDF.ID1 = Connections[i].ID1;
+                LCDF.ID2 = Connections[i].ID2;
+                LCDF.LineID = Connections[i].LineID;
+                LCDF.TwoWay = Connections[i].TwoWay;
+                files.Add(LCDF);
+            }
+
+            return files.ToArray();
+        }
+
+        //
+        // LOADING
+        //
+
+        public void LoadFromFileV1(DataFile file)
         {
             CurrentLineID = file.Playground.CurrentLineID;
 
@@ -236,36 +266,53 @@ namespace EPQ.Foodweb
                 o.GetComponent<NodeLineConnector>().ID = CurrentLineID;
                 CreatingConnection = false;
 
-                Connections.Add(new LineConnection() {  ID1 = file.LineConnections[i].ID1, 
-                                                        ID2 = file.LineConnections[i].ID1, 
-                                                        TwoWay = file.LineConnections[i].TwoWay, 
-                                                        GameObject = o, 
-                                                        LineID = file.LineConnections[i].LineID
+                Connections.Add(new LineConnection()
+                {
+                    ID1 = file.LineConnections[i].ID1,
+                    ID2 = file.LineConnections[i].ID1,
+                    TwoWay = file.LineConnections[i].TwoWay,
+                    GameObject = o,
+                    LineID = file.LineConnections[i].LineID
                 });
             }
         }
-
-        public PlaygroundDataFile SavePlaygroundFile()
+        public void LoadFromFileV2(DataFile file)
         {
-            PlaygroundDataFile PDF = new PlaygroundDataFile();
-            PDF.CurrentLineID = CurrentLineID;
-            return PDF;
-        }
-        public LineConnectionDataFile[] SaveLineConnectionFiles()
-        {
-            List<LineConnectionDataFile> files = new List<LineConnectionDataFile>();
+            CurrentLineID = file.Playground.CurrentLineID;
 
-            for (int i = 0; i < Connections.Count; i++)
+            for (int i = 0; i < file.LineConnections.Length; i++)
             {
-                LineConnectionDataFile LCDF = new LineConnectionDataFile();
-                LCDF.ID1 = Connections[i].ID1;
-                LCDF.ID2 = Connections[i].ID2;
-                LCDF.LineID = Connections[i].LineID;
-                LCDF.TwoWay = Connections[i].TwoWay;
-                files.Add(LCDF);
-            }
 
-            return files.ToArray();
+                GameObject o = Instantiate(LineConnector, LineParent);
+
+                NodeManager nd1 = null;
+                NodeManager nd2 = null;
+
+                for (int j = 0; j < AnimalUINavigator.main.Profiles.Count; j++)
+                {
+                    if (AnimalUINavigator.main.Profiles[j].ID == file.LineConnections[i].ID1)
+                        nd1 = AnimalUINavigator.main.Profiles[j].Node;
+                    if (AnimalUINavigator.main.Profiles[j].ID == file.LineConnections[i].ID2)
+                        nd2 = AnimalUINavigator.main.Profiles[j].Node;
+
+                    if (nd1 != null && nd2 != null)
+                        break;
+                }
+
+                o.GetComponent<NodeLineConnector>().Target1 = nd1.GetComponent<RectTransform>();
+                o.GetComponent<NodeLineConnector>().Target2 = nd2.GetComponent<RectTransform>();
+                o.GetComponent<NodeLineConnector>().ID = CurrentLineID;
+                CreatingConnection = false;
+
+                Connections.Add(new LineConnection()
+                {
+                    ID1 = file.LineConnections[i].ID1,
+                    ID2 = file.LineConnections[i].ID1,
+                    TwoWay = file.LineConnections[i].TwoWay,
+                    GameObject = o,
+                    LineID = file.LineConnections[i].LineID
+                });
+            }
         }
     }
 }
