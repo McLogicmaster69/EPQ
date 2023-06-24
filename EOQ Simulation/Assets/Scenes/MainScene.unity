@@ -1817,7 +1817,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 19464604}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.75
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4899,7 +4899,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5433,6 +5433,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WorldType: {fileID: 883732832}
   WorldSeed: {fileID: 675643}
+  RiverPercentProportion: 0.03
+  RiverSize: 2
+  RiverExpandChance: 0.85
 --- !u!1 &733821516
 GameObject:
   m_ObjectHideFlags: 0
