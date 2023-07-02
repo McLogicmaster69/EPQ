@@ -11,7 +11,7 @@ namespace EPQ.Worlds
 {
     public class WorldManager : MonoBehaviour
     {
-        public static readonly int TICKS_IN_DAY = 25;
+        public static readonly int TICKS_IN_DAY = 50;
         public static readonly int STARTING_FOOD = 3;
         public static readonly int MAX_FOOD = 10;
 
@@ -21,15 +21,20 @@ namespace EPQ.Worlds
 
         public GameObject ActiveSimulationText;
         public GameObject Camera;
+        public GameObject AnimalControllerObject;
         public Material[] Materials;
         public Transform GroundParent;
         public Transform AnimalParent;
+        public Material BlankMaterial;
 
         private World<int> GroundWorld;
         private World<int> AnimalWorld;
+        private World<AnimalController> ControllersGrid;
         private List<CompiledAnimalProfile> AnimalProfiles;
+        private List<GameObject> ActiveAnimals = new List<GameObject>();
 
         private List<GameObject> activeWorldObjects = new List<GameObject>();
+        private List<AnimalController> Controllers = new List<AnimalController>();
         private const float CAMERA_HEIGHT = 160f;
 
         private void Awake()
@@ -44,19 +49,54 @@ namespace EPQ.Worlds
             AnimalProfiles = profiles;
 
             Clock.main.Tick += Tick;
+            SpawnAnimals(animal);
 
             ActiveSimulation = true;
             ActiveSimulationText.SetActive(false);
             ResetCameraPosition(ground.X / 2f);
+
+            DisplayWorld();
         }
-        public void DisplayWorld()
+        private void SpawnAnimals(World<int> animals)
+        {
+            for (int i = 0; i < ActiveAnimals.Count; i++)
+            {
+                Destroy(ActiveAnimals[i]);
+            }
+            ActiveAnimals = new List<GameObject>();
+
+            ControllersGrid = new World<AnimalController>(animals.X, animals.Y);
+            Controllers = new List<AnimalController>();
+            for (int x = 0; x < animals.X; x++)
+            {
+                for (int y = 0; y < animals.Y; y++)
+                {
+                    int cellID = animals.GetCell(x, y);
+                    if (cellID != -1)
+                    {
+                        AnimalController controller = SpawnAnimal(cellID, new Vector2Int(x, y));
+                        Controllers.Add(controller);
+                        ControllersGrid.SetCell(x, y, controller);
+                    }
+                }
+            }
+        }
+        private AnimalController SpawnAnimal(int index, Vector2Int position)
+        {
+            GameObject o = Instantiate(AnimalControllerObject, AnimalParent);
+            ActiveAnimals.Add(o);
+            AnimalController controller = o.GetComponent<AnimalController>();
+            controller.InitAnimal(index, position, AnimalProfiles[index]);
+            return controller;
+        }
+        private void DisplayWorld()
         {
             DestroyWorld();
 
             MeshGroup[] meshGroups = new MeshGroup[Materials.Length];
             for (int i = 0; i < meshGroups.Length; i++)
             {
-                meshGroups[i] = new MeshGroup(Materials[i]);
+                meshGroups[i] = new MeshGroup(0.05f, Materials[i]);
             }
 
             for (int y = 0; y < GroundWorld.Y; y++)
@@ -75,6 +115,7 @@ namespace EPQ.Worlds
                 }
             }
         }
+        public CompiledAnimalProfile GetProfile(int index) => AnimalProfiles[index];
 
         public void SaveData(out CompiledAnimalDataFile[] animalData, out WorldDataFile<int> ground, out WorldDataFile<int> animals)
         {
@@ -116,6 +157,29 @@ namespace EPQ.Worlds
                 Destroy(activeWorldObjects[i]);
             }
             activeWorldObjects = new List<GameObject>();
+        }
+
+        public void MoveAnimal(int startX, int startY, int endX, int endY)
+        {
+            if(GroundWorld.GetCell(endX, endY) != -1)
+            {
+                ControllersGrid.GetCell(endX, endY).Kill();
+            }
+            GroundWorld.MoveValue(startX, startY, endX, endY);
+            ControllersGrid.MoveValue(startX, startY, endX, endY);
+        }
+        public void SetAnimalCell(int x, int y, int ID, AnimalController controller)
+        {
+            AnimalWorld.SetCell(x, y, ID);
+            ControllersGrid.SetCell(x, y, controller);
+        }
+        public int GetGroundCell(int x, int y)
+        {
+            return GroundWorld.GetCell(x, y);
+        }
+        public int GetAnimalCell(int x, int y)
+        {
+            return AnimalWorld.GetCell(x, y);
         }
     }
 }

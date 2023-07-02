@@ -12,6 +12,7 @@ namespace EPQ.Meshes
         private const int MaxVerts = 50000;
         private int Layer = 0;
         private Material Material = null;
+        private float Border = 0f;
 
         public MeshGroup()
         {
@@ -37,13 +38,41 @@ namespace EPQ.Meshes
             Layer = layer;
             Material = material;
         }
+        public MeshGroup(float border)
+        {
+            meshes = new List<SquareMesh>();
+            meshes.Add(new SquareMesh(border));
+            Border = border;
+        }
+        public MeshGroup(int layer, float border)
+        {
+            meshes = new List<SquareMesh>();
+            meshes.Add(new SquareMesh(border));
+            Layer = layer;
+            Border = border;
+        }
+        public MeshGroup(float border, Material material)
+        {
+            meshes = new List<SquareMesh>();
+            meshes.Add(new SquareMesh(border));
+            Material = material;
+            Border = border;
+        }
+        public MeshGroup(int layer, float border, Material material)
+        {
+            meshes = new List<SquareMesh>();
+            meshes.Add(new SquareMesh(border));
+            Layer = layer;
+            Material = material;
+            Border = border;
+        }
 
         public void AddCube(int X, int Z)
         {
             if (totalVerts > MaxVerts)
             {
                 totalVerts -= MaxVerts;
-                meshes.Add(new SquareMesh());
+                meshes.Add(new SquareMesh(Border));
             }
             meshes[meshes.Count - 1].AddCube(X, Z);
             totalVerts += 6;

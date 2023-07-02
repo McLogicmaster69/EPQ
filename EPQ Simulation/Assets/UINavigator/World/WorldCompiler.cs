@@ -12,6 +12,9 @@ namespace EPQ.Compiler
 {
     public class WorldCompiler : MonoBehaviour
     {
+        public static readonly int GRASS_ID = 0;
+        public static readonly int WATER_ID = 1;
+
         [Header("UI")]
         public TMP_Dropdown WorldType;
         public TMP_InputField WorldSeed;
@@ -47,6 +50,7 @@ namespace EPQ.Compiler
 
         [Header("World")]
         public int WorldSize = 50;
+        public int AnimalPercent = 10;
 
         [Header("River")]
         [Range(0f, 1f)]
@@ -64,7 +68,6 @@ namespace EPQ.Compiler
 
         private float NumberOfRivers { get { return WorldSize * 2 * RiverPercentProportion; } }
         private float NumberOfLakes { get { return WorldSize * WorldSize * LakePercentProportion; } }
-        private int AnimalPercent = 50;
 
         private const string LOAD_FAILED_MESSAGE = "FAILED TO OPEN FILE ";
 
@@ -89,7 +92,6 @@ namespace EPQ.Compiler
             World<int> animals = AnimalGeneration();
 
             WorldManager.main.SetupWorld(world, animals, profiles);
-            WorldManager.main.DisplayWorld();
             Clock.main.IsTicking = false;
 
             System.DateTime endTime = System.DateTime.Now;
@@ -141,13 +143,13 @@ namespace EPQ.Compiler
         #region Animal Generation
         private World<int> AnimalGeneration()
         {
-            World<int> animals = new World<int>(WorldSize, WorldSize);
-            List<Vector2Int> availablePositoins = GenerateAvailablePositoins();
+            World<int> animals = new World<int>(WorldSize, WorldSize, -1);
 
             float total = GetTotalBatch();
             if (total == 0)
                 return animals;
 
+            List<Vector2Int> availablePositoins = GenerateAvailablePositoins();
             AddAnimalsToWorld(animals, availablePositoins, total);
             return animals;
         }
@@ -177,7 +179,7 @@ namespace EPQ.Compiler
             for (int i = 0; i < AnimalUINavigator.main.Profiles.Count; i++)
             {
                 AnimalProfile profile = AnimalUINavigator.main.Profiles[i];
-                int amountToGenerate = Mathf.FloorToInt((profile.BatchSize / total) * (AnimalPercent / 100) * (WorldSize * WorldSize));
+                int amountToGenerate = Mathf.FloorToInt((profile.BatchSize / total) * (AnimalPercent / 200f) * (WorldSize * WorldSize));
                 for (int j = 0; j < amountToGenerate; j++)
                 {
                     if (availablePositoins.Count == 0)
@@ -197,7 +199,7 @@ namespace EPQ.Compiler
             {
                 for (int y = 0; y < WorldSize; y++)
                 {
-                    world.SetCell(x, y, 0);
+                    world.SetCell(x, y, GRASS_ID);
                 }
             }
         }
@@ -237,7 +239,7 @@ namespace EPQ.Compiler
 
             for (int y = 0; y < world.Y; y++)
             {
-                world.SetCell(x, y, 1);
+                world.SetCell(x, y, WATER_ID);
                 int fowardDirection = Random.Range(-7, 8);
                 if (!MoveRiverPosition(ref x, world.X - 1, fowardDirection, leftBoundary, rightBoundary))
                     return;
@@ -249,7 +251,7 @@ namespace EPQ.Compiler
 
             for (int x = 0; x < world.X; x++)
             {
-                world.SetCell(x, y, 1);
+                world.SetCell(x, y, WATER_ID);
                 int fowardDirection = Random.Range(-7, 8);
                 if (!MoveRiverPosition(ref y, world.Y - 1, fowardDirection, leftBoundary, rightBoundary))
                     return;
@@ -261,7 +263,7 @@ namespace EPQ.Compiler
 
             for (int y = world.Y - 1; y >= 0; y--)
             {
-                world.SetCell(x, y, 1);
+                world.SetCell(x, y, WATER_ID);
                 int fowardDirection = Random.Range(-7, 8);
                 if (!MoveRiverPosition(ref x, world.X - 1, fowardDirection, leftBoundary, rightBoundary))
                     return;
@@ -273,7 +275,7 @@ namespace EPQ.Compiler
 
             for (int x = world.X - 1; x >= 0; x--)
             {
-                world.SetCell(x, y, 1);
+                world.SetCell(x, y, WATER_ID);
                 int fowardDirection = Random.Range(-7, 8);
                 if (!MoveRiverPosition(ref y, world.Y - 1, fowardDirection, leftBoundary, rightBoundary))
                     return;
@@ -312,16 +314,16 @@ namespace EPQ.Compiler
                 {
                     for (int y = 0; y < editingWorld.Y; y++)
                     {
-                        int numberInRange = world.NumberInRange(1, x, y, 1);
+                        int numberInRange = world.NumberInRange(WATER_ID, x, y, 1);
                         if (numberInRange > 0)
                         {
                             if (numberInRange <= 3)
                             {
                                 if (Random.Range(0, 1000) < RiverExpandChance * 1000)
-                                    editingWorld.SetCell(x, y, 1);
+                                    editingWorld.SetCell(x, y, WATER_ID);
                             }
                             else
-                                editingWorld.SetCell(x, y, 1);
+                                editingWorld.SetCell(x, y, WATER_ID);
                         }
                     }
                 }
@@ -341,7 +343,7 @@ namespace EPQ.Compiler
             {
                 int randX = Random.Range(0, world.X);
                 int randY = Random.Range(0, world.Y);
-                world.SetCell(randX, randY, 1);
+                world.SetCell(randX, randY, WATER_ID);
             }
         }
         private void ExpandLakes(ref World<int> world)
@@ -356,7 +358,7 @@ namespace EPQ.Compiler
                         int numberInRange = world.NumberInRadius(1, x, y, 1);
                         float multiplier = numberInRange / 4f;
                         if (Random.Range(0, 1000) / multiplier < LakeExpandChance * 1000)
-                            editingWorld.SetCell(x, y, 1);
+                            editingWorld.SetCell(x, y, WATER_ID);
                     }
                 }
                 world.SetWorld(editingWorld);

@@ -11,6 +11,7 @@ namespace EPQ.Animals
     {
         public readonly int ID;
         public readonly List<int> CanEat;
+        public Color Color;
         public readonly AnimalAttributes Attributes;
 
         public CompiledAnimalProfile(AnimalProfile profile)
@@ -18,6 +19,7 @@ namespace EPQ.Animals
             ID = profile.ID;
             CanEat = new List<int>();
             Attributes = new AnimalAttributes(profile.Attributes);
+            Color = profile.ColorCode;
 
             List<LineConnection> Connections = PlaygroundNavigator.main.Connections;
             for (int i = 0; i < Connections.Count; i++)
@@ -40,6 +42,11 @@ namespace EPQ.Animals
             ID = profile.ID;
             CanEat = new List<int>(profile.CanEat);
             Attributes = profile.Attributes;
+            Color = new Color(
+                profile.r,
+                profile.g,
+                profile.b
+                );
         }
     }
 }

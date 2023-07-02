@@ -11,12 +11,14 @@ namespace EPQ.Data
         public int X;
         public int Y;
         public T[,] Data;
+        public T DefaultValue;
 
         public WorldDataFile(World<T> world)
         {
             X = world.X;
             Y = world.Y;
             Data = world.world;
+            DefaultValue = world.DefaultValue;
         }
     }
 }

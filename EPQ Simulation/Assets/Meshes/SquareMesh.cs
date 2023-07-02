@@ -12,6 +12,9 @@ namespace EPQ.Meshes
         private int CubesAdd { get { return Cubes * 4; } }
         public Vector3[] Verticies { get { return Verts.ToArray(); } }
         public int[] Triangles { get { return Tris.ToArray(); } }
+
+        private float Border = 0f;
+
         public Mesh Mesh
         {
             get
@@ -31,14 +34,20 @@ namespace EPQ.Meshes
             Verts = new List<Vector3>();
             Tris = new List<int>();
         }
+        public SquareMesh(float border)
+        {
+            Verts = new List<Vector3>();
+            Tris = new List<int>();
+            Border = border;
+        }
         public void AddCube(int X, int Z)
         {
             List<Vector3> vlist = new List<Vector3>
             {
-                new Vector3(X, 1, Z + 1),
-                new Vector3(X + 1, 1, Z + 1),
-                new Vector3(X + 1, 1, Z),
-                new Vector3(X, 1, Z),
+                new Vector3(X + Border, 1, Z + (1 - Border)),
+                new Vector3(X + (1 - Border), 1, Z + (1 - Border)),
+                new Vector3(X + (1 - Border), 1, Z + Border),
+                new Vector3(X + Border, 1, Z + Border),
             };
             List<int> ilist = new List<int>
             {

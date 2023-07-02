@@ -12,24 +12,58 @@ namespace EPQ.Worlds
         public T[,] world { get { return worldData; } }
         public int X { get; private set; }
         public int Y { get; private set; }
+        public T DefaultValue { get; private set; }
 
         public World(World<T> world)
         {
             X = world.X;
             Y = world.Y;
+            DefaultValue = world.DefaultValue;
             worldData = (T[,])world.worldData.Clone();
-        }
-        public World(int x, int y)
-        {
-            X = x;
-            Y = y;
-            worldData = new T[x, y];
         }
         public World(WorldDataFile<T> data)
         {
             X = data.X;
             Y = data.Y;
+            DefaultValue = data.DefaultValue;
             worldData = data.Data;
+        }
+        public World(int x, int y)
+        {
+            X = x;
+            Y = y;
+            DefaultValue = default(T);
+            worldData = new T[x, y];
+        }
+        public World(int x, int y, T value)
+        {
+            X = x;
+            Y = y;
+            DefaultValue = default(T);
+            worldData = new T[x, y];
+
+            for (int _x = 0; _x < x; _x++)
+            {
+                for (int _y = 0; _y < y; _y++)
+                {
+                    worldData[_x, _y] = value;
+                }
+            }
+        }
+        public World(int x, int y, T value, T defaultValue)
+        {
+            X = x;
+            Y = y;
+            DefaultValue = defaultValue;
+            worldData = new T[x, y];
+
+            for (int _x = 0; _x < x; _x++)
+            {
+                for (int _y = 0; _y < y; _y++)
+                {
+                    worldData[_x, _y] = value;
+                }
+            }
         }
 
         public void SetCell(int x, int y, T value)
@@ -118,6 +152,16 @@ namespace EPQ.Worlds
                 && x < X
                 && y >= 0
                 && y < Y;
+        }
+
+        public void MoveValue(int startX, int startY, int endX, int endY)
+        {
+            MoveValue(startX, startY, endX, endY, DefaultValue);
+        }
+        public void MoveValue(int startX, int startY, int endX, int endY, T replaceValue)
+        {
+            worldData[endX, endY] = worldData[startX, startY];
+            worldData[startX, startY] = replaceValue;
         }
     }
 }

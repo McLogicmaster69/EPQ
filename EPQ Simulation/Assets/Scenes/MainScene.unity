@@ -24,8 +24,8 @@ RenderSettings:
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_AmbientMode: 3
+  m_SubtractiveShadowColor: {r: 1, g: 1, b: 1, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
@@ -15593,7 +15593,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ANIMAL PERCENT
+  m_text: ANIMAL AMOUNT
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -16687,7 +16687,7 @@ MonoBehaviour:
   m_MinValue: 1
   m_MaxValue: 100
   m_WholeNumbers: 1
-  m_Value: 50
+  m_Value: 10
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -16812,7 +16812,7 @@ MonoBehaviour:
   WorldSizeInput: {fileID: 1315382379}
   AnimalPercentSlider:
     MinValue: 1
-    MaxValue: 100
+    MaxValue: 30
     Text: {fileID: 1137253708}
     Slider: {fileID: 722700139}
   StatusText: {fileID: 413984949}
@@ -16836,6 +16836,7 @@ MonoBehaviour:
   FileName: {fileID: 325910302}
   LoadStatusText: {fileID: 1122986049}
   WorldSize: 50
+  AnimalPercent: 10
   RiverPercentProportion: 0.03
   RiverSize: 2
   RiverExpandChance: 0.85
@@ -21692,11 +21693,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ActiveSimulationText: {fileID: 306807979}
   Camera: {fileID: 957116382}
+  AnimalControllerObject: {fileID: 7860920354827624735, guid: 0330e88ff393a8940b4852ccce646f0b, type: 3}
   Materials:
   - {fileID: 2100000, guid: 682e1b8584415c04db85629e28f5a098, type: 2}
   - {fileID: 2100000, guid: 27300b5998835614b914f48a022a26bb, type: 2}
   GroundParent: {fileID: 2118772630}
   AnimalParent: {fileID: 1055042952}
+  BlankMaterial: {fileID: 2100000, guid: 3e78b1432bebd9b42b8473040dcaeae0, type: 2}
 --- !u!4 &985129732
 Transform:
   m_ObjectHideFlags: 0
@@ -25689,7 +25692,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "50\u200B"
+  m_text: "10\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -25978,7 +25981,7 @@ MonoBehaviour:
   m_CharacterValidation: 2
   m_RegexValue: 
   m_GlobalPointSize: 20
-  m_CharacterLimit: 2
+  m_CharacterLimit: 3
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -26018,7 +26021,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 50
+  m_Text: 10
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
