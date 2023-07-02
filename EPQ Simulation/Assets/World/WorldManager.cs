@@ -27,10 +27,11 @@ namespace EPQ.Worlds
         public Transform AnimalParent;
         public Material BlankMaterial;
 
-        private World<int> GroundWorld;
-        private World<int> AnimalWorld;
-        private World<AnimalController> ControllersGrid;
-        private List<CompiledAnimalProfile> AnimalProfiles;
+        public World<int> GroundWorld { get; private set; }
+        public World<int> AnimalWorld { get; private set; }
+        public World<AnimalController> ControllersGrid { get; private set; }
+        public List<CompiledAnimalProfile> AnimalProfiles { get; private set; }
+
         private List<GameObject> ActiveAnimals = new List<GameObject>();
 
         private List<GameObject> activeWorldObjects = new List<GameObject>();

@@ -27,13 +27,13 @@ namespace EPQ.Animals
                 if (Connections[i].TwoWay)
                 {
                     if (Connections[i].ID1 == ID)
-                        CanEat.Add(Connections[i].ID2);
+                        CanEat.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID2));
                     else if(Connections[i].ID2 == ID)
-                        CanEat.Add(Connections[i].ID1);
+                        CanEat.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID1));
                 }
                 else if(Connections[i].ID1 == ID)
                 {
-                    CanEat.Add(Connections[i].ID2);
+                    CanEat.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID2));
                 }
             }
         }

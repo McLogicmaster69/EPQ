@@ -232,14 +232,21 @@ namespace EPQ.Animals
         }
         public AnimalProfile GetProfile(int ID)
         {
-            for (int i = 0; i < Profiles.Count; i++)
+            for (int i = ID; i >= 0; i--)
             {
-                if(Profiles[i].ID == ID)
-                {
+                if (Profiles[i].ID == ID)
                     return Profiles[i];
-                }
             }
             return null;
+        }
+        public int GetIndex(int ID)
+        {
+            for (int i = ID; i >= 0; i--)
+            {
+                if (Profiles[i].ID == ID)
+                    return i;
+            }
+            return -1;
         }
         public GameObject GetObject(int index)
         {
