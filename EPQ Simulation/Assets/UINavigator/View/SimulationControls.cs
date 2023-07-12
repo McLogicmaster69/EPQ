@@ -47,6 +47,7 @@ namespace EPQ.View
         }
         public void ToggleSaveUI()
         {
+            Clock.main.IsTicking = false;
             SaveUI.SetActive(!SaveUI.activeInHierarchy);
         }
         public void SaveSimulation()

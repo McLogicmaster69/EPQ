@@ -11,6 +11,7 @@ namespace EPQ.Animals
     {
         public readonly int ID;
         public readonly List<int> CanEat;
+        public readonly List<int> CanBeEatenBy;
         public Color Color;
         public readonly AnimalAttributes Attributes;
 
@@ -18,6 +19,7 @@ namespace EPQ.Animals
         {
             ID = profile.ID;
             CanEat = new List<int>();
+            CanBeEatenBy = new List<int>();
             Attributes = new AnimalAttributes(profile.Attributes);
             Color = profile.ColorCode;
 
@@ -27,13 +29,23 @@ namespace EPQ.Animals
                 if (Connections[i].TwoWay)
                 {
                     if (Connections[i].ID1 == ID)
+                    {
                         CanEat.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID2));
-                    else if(Connections[i].ID2 == ID)
+                        CanBeEatenBy.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID1));
+                    }
+                    else if (Connections[i].ID2 == ID)
+                    {
                         CanEat.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID1));
+                        CanBeEatenBy.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID2));
+                    }
                 }
                 else if(Connections[i].ID1 == ID)
                 {
-                    CanEat.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID2));
+                    CanBeEatenBy.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID2));
+                }
+                else if(Connections[i].ID2 == ID)
+                {
+                    CanEat.Add(AnimalUINavigator.main.GetIndex(Connections[i].ID1));
                 }
             }
         }
@@ -41,6 +53,7 @@ namespace EPQ.Animals
         {
             ID = profile.ID;
             CanEat = new List<int>(profile.CanEat);
+            CanBeEatenBy = new List<int>(profile.CanBeEatenBy);
             Attributes = profile.Attributes;
             Color = new Color(
                 profile.r,

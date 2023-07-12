@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine.UI;
 using EPQ.Data;
 using EPQ.Files;
+using EPQ.UI;
 
 namespace EPQ.Compiler
 {
@@ -22,6 +23,7 @@ namespace EPQ.Compiler
         public TMP_InputField WorldSizeInput;
         public AttributeSlider AnimalPercentSlider;
         public TMP_Text StatusText;
+        public GameObject GoToSimulationButton;
 
         [Header("River UI")]
         public GameObject RiverOptionButton;
@@ -74,6 +76,7 @@ namespace EPQ.Compiler
         private void Start()
         {
             RiverOptionsUI.SetActive(false);
+            GoToSimulationButton.SetActive(false);
             ChangeSelectedOption(0);
             InitGeneralUI();
             InitRiverValues();
@@ -97,6 +100,11 @@ namespace EPQ.Compiler
             System.DateTime endTime = System.DateTime.Now;
             System.TimeSpan timeTaken = endTime - startTime;
             ChangeStatus($"Created world in {timeTaken.TotalSeconds} seconds");
+            GoToSimulationButton.SetActive(true);
+        }
+        public void GoToSimulation()
+        {
+            UINavigator.main.ChangeMenu(0);
         }
 
         #region World Setup
@@ -595,6 +603,7 @@ namespace EPQ.Compiler
 
             FileManager.LoadFile(data);
             ChangeStatus("Loaded simulation");
+            GoToSimulationButton.SetActive(true);
             ToggleLoadUI();
         }
         private string FormatLoadFailMessage(string filename) => LOAD_FAILED_MESSAGE + filename;

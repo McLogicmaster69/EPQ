@@ -11,18 +11,19 @@ namespace EPQ.Foodweb.Connections
         public RectTransform Target2;
         public NodeManager Target1Node;
         public NodeManager Target2Node;
+        public LineConnection LineConnection;
         public Material Gradient;
         public float Thickness = 5f;
         public int ID;
 
         private Image image;
         private RectTransform rectTransform;
-        private LineConnection LineConnection;
 
         void Start()
         {
             image = GetComponent<Image>();
             rectTransform = GetComponent<RectTransform>();
+            LineConnection = PlaygroundNavigator.main.GetConnection(ID);
         }
 
         void Update()

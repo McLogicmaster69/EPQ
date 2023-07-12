@@ -24,6 +24,7 @@ namespace EPQ.Foodweb
         public GameObject LineConnector;
         public Transform LineParent;
         public GameObject ConnectionUI;
+        public GameObject ConnectionCancelButton;
 
         public bool CreatingConnection { get; private set; } = false;
         public List<LineConnection> Connections { get; private set; } = new List<LineConnection>();
@@ -54,6 +55,11 @@ namespace EPQ.Foodweb
         {
             ConnectionUI.SetActive(false);
         }
+        private void Start()
+        {
+            ConnectionCancelButton.SetActive(false);
+        }
+
         private void Update()
         {
             int verticalInp = 0;
@@ -99,6 +105,7 @@ namespace EPQ.Foodweb
             {
                 CreatingConnection = false;
                 ConnectionUI.SetActive(false);
+                ConnectionCancelButton.SetActive(false);
             }
         }
 
@@ -106,6 +113,7 @@ namespace EPQ.Foodweb
         {
             CreatingConnection = true;
             StartNode = startNode;
+            ConnectionCancelButton.SetActive(true);
         }
         public void EndConnection(NodeManager endNode)
         {
@@ -113,7 +121,6 @@ namespace EPQ.Foodweb
                 return;
             if(endNode.Profile.ID != StartNode.Profile.ID && CreatingConnection)
             {
-
                 for (int i = 0; i < Connections.Count; i++)
                 {
                     if ((Connections[i].ID1 == StartNode.Profile.ID && Connections[i].ID2 == endNode.Profile.ID)
@@ -122,18 +129,29 @@ namespace EPQ.Foodweb
                 }
 
                 GameObject o = Instantiate(LineConnector, LineParent);
-                NodeLineConnector connector = o.GetComponent<NodeLineConnector>();
+                InitConnector(o, endNode);
 
-                connector.Target1 = StartNode.GetComponent<RectTransform>();
-                connector.Target2 = endNode.GetComponent<RectTransform>();
-                connector.Target1Node = StartNode;
-                connector.Target2Node = endNode;
-                connector.ID = CurrentLineID;
                 CreatingConnection = false;
+                ConnectionCancelButton.SetActive(false);
 
                 Connections.Add(new LineConnection() { ID1 = StartNode.Profile.ID, ID2 = endNode.Profile.ID, TwoWay = false, GameObject = o, LineID = CurrentLineID });
                 CurrentLineID++;
             }
+        }
+        private void InitConnector(GameObject o, NodeManager endNode)
+        {
+            NodeLineConnector connector = o.GetComponent<NodeLineConnector>();
+
+            connector.Target1 = StartNode.GetComponent<RectTransform>();
+            connector.Target2 = endNode.GetComponent<RectTransform>();
+            connector.Target1Node = StartNode;
+            connector.Target2Node = endNode;
+            connector.ID = CurrentLineID;
+        }
+        public void CancelConnection()
+        {
+            CreatingConnection = false;
+            ConnectionCancelButton.SetActive(false);
         }
         public LineConnection GetConnection(int ID)
         {
@@ -254,11 +272,23 @@ namespace EPQ.Foodweb
         public void LoadFromFileV1(DataFile file)
         {
             CurrentLineID = file.Playground.CurrentLineID;
+            Connections = new List<LineConnection>();
+
 
             for (int i = 0; i < file.LineConnections.Length; i++)
             {
 
                 GameObject o = Instantiate(LineConnector, LineParent);
+
+                LineConnection connection = new LineConnection()
+                {
+                    ID1 = file.LineConnections[i].ID1,
+                    ID2 = file.LineConnections[i].ID2,
+                    TwoWay = file.LineConnections[i].TwoWay,
+                    GameObject = o,
+                    LineID = file.LineConnections[i].LineID
+                };
+                Connections.Add(connection);
 
                 NodeManager nd1 = null;
                 NodeManager nd2 = null;
@@ -274,19 +304,13 @@ namespace EPQ.Foodweb
                         break;
                 }
 
-                o.GetComponent<NodeLineConnector>().Target1 = nd1.GetComponent<RectTransform>();
-                o.GetComponent<NodeLineConnector>().Target2 = nd2.GetComponent<RectTransform>();
-                o.GetComponent<NodeLineConnector>().ID = CurrentLineID;
+                NodeLineConnector con = o.GetComponent<NodeLineConnector>();
+                con.Target1 = nd1.GetComponent<RectTransform>();
+                con.Target2 = nd2.GetComponent<RectTransform>();
+                con.Target1Node = AnimalUINavigator.main.GetProfile(file.LineConnections[i].ID1).Node;
+                con.Target2Node = AnimalUINavigator.main.GetProfile(file.LineConnections[i].ID2).Node;
+                con.ID = file.LineConnections[i].LineID;
                 CreatingConnection = false;
-
-                Connections.Add(new LineConnection()
-                {
-                    ID1 = file.LineConnections[i].ID1,
-                    ID2 = file.LineConnections[i].ID1,
-                    TwoWay = file.LineConnections[i].TwoWay,
-                    GameObject = o,
-                    LineID = file.LineConnections[i].LineID
-                });
             }
         }
         public void LoadFromFileV2(DataFile file)

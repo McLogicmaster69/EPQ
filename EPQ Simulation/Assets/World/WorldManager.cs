@@ -31,25 +31,31 @@ namespace EPQ.Worlds
         public World<int> AnimalWorld { get; private set; }
         public World<AnimalController> ControllersGrid { get; private set; }
         public List<CompiledAnimalProfile> AnimalProfiles { get; private set; }
+        public List<AnimalController> Controllers { get; private set; } = new List<AnimalController>();
 
         private List<GameObject> ActiveAnimals = new List<GameObject>();
 
         private List<GameObject> activeWorldObjects = new List<GameObject>();
-        private List<AnimalController> Controllers = new List<AnimalController>();
         private const float CAMERA_HEIGHT = 160f;
+        private int CurrentID = 0;
 
+        #region Unity
         private void Awake()
         {
             main = this;
         }
-
+        private void Start()
+        {
+            Clock.main.Tick += Tick;
+        }
+        #endregion
+        #region Setup
         public void SetupWorld(World<int> ground, World<int> animal, List<CompiledAnimalProfile> profiles)
         {
             GroundWorld = ground;
             AnimalWorld = animal;
             AnimalProfiles = profiles;
 
-            Clock.main.Tick += Tick;
             SpawnAnimals(animal);
 
             ActiveSimulation = true;
@@ -60,11 +66,7 @@ namespace EPQ.Worlds
         }
         private void SpawnAnimals(World<int> animals)
         {
-            for (int i = 0; i < ActiveAnimals.Count; i++)
-            {
-                Destroy(ActiveAnimals[i]);
-            }
-            ActiveAnimals = new List<GameObject>();
+            DestroyAllActiveAnimals();
 
             ControllersGrid = new World<AnimalController>(animals.X, animals.Y);
             Controllers = new List<AnimalController>();
@@ -82,12 +84,29 @@ namespace EPQ.Worlds
                 }
             }
         }
+        private void DestroyAllActiveAnimals()
+        {
+            for (int i = 0; i < ActiveAnimals.Count; i++)
+            {
+                Destroy(ActiveAnimals[i]);
+            }
+            ActiveAnimals = new List<GameObject>();
+        }
         private AnimalController SpawnAnimal(int index, Vector2Int position)
         {
             GameObject o = Instantiate(AnimalControllerObject, AnimalParent);
             ActiveAnimals.Add(o);
             AnimalController controller = o.GetComponent<AnimalController>();
-            controller.InitAnimal(index, position, AnimalProfiles[index]);
+            controller.InitAnimal(index, position, AnimalProfiles[index], CurrentID);
+            CurrentID++;
+            return controller;
+        }
+        private AnimalController SpawnAnimal(ControllerDataFile data)
+        {
+            GameObject o = Instantiate(AnimalControllerObject, AnimalParent);
+            ActiveAnimals.Add(o);
+            AnimalController controller = o.GetComponent<AnimalController>();
+            controller.InitAnimal(data);
             return controller;
         }
         private void DisplayWorld()
@@ -110,42 +129,12 @@ namespace EPQ.Worlds
 
             for (int i = 0; i < meshGroups.Length; i++)
             {
-                foreach(GameObject o in meshGroups[i].BuildMeshes(GroundParent))
+                foreach (GameObject o in meshGroups[i].BuildMeshes(GroundParent))
                 {
                     activeWorldObjects.Add(o);
                 }
             }
         }
-        public CompiledAnimalProfile GetProfile(int index) => AnimalProfiles[index];
-
-        public void SaveData(out CompiledAnimalDataFile[] animalData, out WorldDataFile<int> ground, out WorldDataFile<int> animals)
-        {
-            CompiledAnimalDataFile[] profiles = new CompiledAnimalDataFile[AnimalProfiles.Count];
-            for (int i = 0; i < AnimalProfiles.Count; i++)
-            {
-                profiles[i] = new CompiledAnimalDataFile(AnimalProfiles[i]);
-            }
-
-            animalData = profiles;
-            ground = new WorldDataFile<int>(GroundWorld);
-            animals = new WorldDataFile<int>(AnimalWorld);
-        }
-        public void LoadDataV1(SimulationDataFile data)
-        {
-            for (int i = 0; i < data.Profiles.Length; i++)
-            {
-                AnimalProfiles.Add(new CompiledAnimalProfile(data.Profiles[i]));
-            }
-
-            GroundWorld = new World<int>(data.Ground);
-            AnimalWorld = new World<int>(data.Animals);
-        }
-
-        public void Tick(object sender, TickEventArgs e)
-        {
-
-        }
-
         private void ResetCameraPosition(float centre)
         {
             float x = centre - Mathf.Sqrt((CAMERA_HEIGHT * CAMERA_HEIGHT) / 2);
@@ -159,28 +148,151 @@ namespace EPQ.Worlds
             }
             activeWorldObjects = new List<GameObject>();
         }
+        #endregion
+        #region Tick
+        public void Tick(object sender, TickEventArgs e)
+        {
+            for (int i = 0; i < Controllers.Count; i++)
+            {
+                try
+                {
+                    if (Controllers[i] != null)
+                        Controllers[i].Tick();
+                }
+                catch (System.Exception)
+                {
 
+                }
+            }
+            DeleteExtraControllers();
+            Clock.main.handledTick = true;
+        }
+        #endregion
+        #region Animal Grid
         public void MoveAnimal(int startX, int startY, int endX, int endY)
         {
-            if(GroundWorld.GetCell(endX, endY) != -1)
-            {
-                ControllersGrid.GetCell(endX, endY).Kill();
-            }
-            GroundWorld.MoveValue(startX, startY, endX, endY);
-            ControllersGrid.MoveValue(startX, startY, endX, endY);
+            AnimalWorld.MoveValue(startX, startY, endX, endY, -1);
+            AnimalController controller = ControllersGrid.MoveValue(startX, startY, endX, endY, null);
+            if (controller != null)
+                controller.Kill();
         }
-        public void SetAnimalCell(int x, int y, int ID, AnimalController controller)
+        public void MoveAnimal(int startX, int startY, int endX, int endY, AnimalController eater)
         {
-            AnimalWorld.SetCell(x, y, ID);
+            AnimalWorld.MoveValue(startX, startY, endX, endY, -1);
+            AnimalController controller = ControllersGrid.MoveValue(startX, startY, endX, endY, null);
+            if (controller != null)
+                controller.Kill(eater);
+        }
+        public void SetAnimalCell(int x, int y, int index, AnimalController controller)
+        {
+            AnimalWorld.SetCell(x, y, index);
             ControllersGrid.SetCell(x, y, controller);
-        }
-        public int GetGroundCell(int x, int y)
-        {
-            return GroundWorld.GetCell(x, y);
         }
         public int GetAnimalCell(int x, int y)
         {
             return AnimalWorld.GetCell(x, y);
         }
+        public void DeleteAnimal(int x, int y)
+        {
+            AnimalWorld.SetCell(x, y, -1);
+            ControllersGrid.SetCell(x, y, null);
+        }
+        public void CreateAnimal(int x, int y, int type)
+        {
+            AnimalController controller = SpawnAnimal(type, new Vector2Int(x, y));
+            Controllers.Add(controller);
+            ControllersGrid.SetCell(x, y, controller);
+            AnimalWorld.SetCell(x, y, type);
+        }
+        #endregion
+        #region Ground
+        public int GetGroundCell(int x, int y)
+        {
+            return GroundWorld.GetCell(x, y);
+        }
+        #endregion
+        #region Save and Load
+        public void SaveData(out CompiledAnimalDataFile[] animalData, out ControllerDataFile[] controllersData, out WorldDataFile<int> ground, out WorldDataFile<int> animals, out int currentId)
+        {
+            Clock.main.IsTicking = false;
+            DeleteExtraControllers();
+
+            CompiledAnimalDataFile[] profiles = new CompiledAnimalDataFile[AnimalProfiles.Count];
+            for (int i = 0; i < AnimalProfiles.Count; i++)
+            {
+                profiles[i] = new CompiledAnimalDataFile(AnimalProfiles[i]);
+            }
+            ControllerDataFile[] controllers = new ControllerDataFile[Controllers.Count];
+            for (int i = 0; i < Controllers.Count; i++)
+            {
+                controllers[i] = Controllers[i].CreateDataFile();
+            }
+
+            animalData = profiles;
+            controllersData = controllers;
+            ground = new WorldDataFile<int>(GroundWorld);
+            animals = new WorldDataFile<int>(AnimalWorld);
+            currentId = CurrentID;
+        }
+        public void LoadDataV1(SimulationDataFile data)
+        {
+            DestroyAllActiveAnimals();
+
+            for (int i = 0; i < data.Profiles.Length; i++)
+            {
+                AnimalProfiles.Add(new CompiledAnimalProfile(data.Profiles[i]));
+            }
+
+            GroundWorld = new World<int>(data.Ground);
+            AnimalWorld = new World<int>(data.Animals);
+        }
+        public void LoadDataV2(SimulationDataFile data)
+        {
+            DestroyAllActiveAnimals();
+            CurrentID = data.CurrentID;
+            GroundWorld = new World<int>(data.Ground);
+            AnimalWorld = new World<int>(data.Animals);
+            ControllersGrid = new World<AnimalController>(AnimalWorld.X, AnimalWorld.Y);
+            AnimalProfiles = new List<CompiledAnimalProfile>();
+
+            for (int i = 0; i < data.Profiles.Length; i++)
+            {
+                AnimalProfiles.Add(new CompiledAnimalProfile(data.Profiles[i]));
+            }
+            for (int i = 0; i < data.Controllers.Length; i++)
+            {
+                AnimalController controller = SpawnAnimal(data.Controllers[i]);
+                ControllersGrid.SetCell(data.Controllers[i].CurrentPositionX, data.Controllers[i].CurrentPositionY, controller);
+                Controllers.Add(controller);
+            }
+            for (int i = 0; i < data.Controllers.Length; i++)
+            {
+                Controllers[i].InitIndexes(data.Controllers[i]);
+            }
+
+            ActiveSimulation = true;
+            ActiveSimulationText.SetActive(false);
+            ResetCameraPosition(GroundWorld.X / 2f);
+            DisplayWorld();
+        }
+        #endregion
+        #region Other
+        public CompiledAnimalProfile GetProfile(int index) => AnimalProfiles[index];
+        private void DeleteExtraControllers()
+        {
+            List<int> controllerToRemove = new List<int>();
+            for (int i = 0; i < Controllers.Count; i++)
+            {
+                if (Controllers[i] == null)
+                {
+                    controllerToRemove.Add(i - controllerToRemove.Count);
+                }
+            }
+            for (int i = 0; i < controllerToRemove.Count; i++)
+            {
+                Controllers.RemoveAt(controllerToRemove[i]);
+            }
+        }
+        #endregion
     }
 }

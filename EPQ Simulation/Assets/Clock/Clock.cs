@@ -12,6 +12,7 @@ namespace EPQ
         public event EventHandler<TickEventArgs> Tick;
         public bool IsTicking = false;
         public float Interval = 0.1f;
+        public bool handledTick = true;
 
         private float counter = 0f;
 
@@ -30,9 +31,11 @@ namespace EPQ
                 if(counter <= 0f)
                 {
                     counter = Interval;
+                    handledTick = false;
                     DoTick();
                 }
-                counter -= Time.deltaTime;
+                if(handledTick)
+                    counter -= Time.deltaTime;
             }
         }
 

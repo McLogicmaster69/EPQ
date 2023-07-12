@@ -60,19 +60,22 @@ namespace EPQ.Files
         public static readonly LoadSystem<SimulationDataFile>[] SimulationVersionLoads =
         {
             new LoadSystem<SimulationDataFile>("SimVer0.1", new System.Action<SimulationDataFile>[] { WorldManager.main.LoadDataV1 } ),
+            new LoadSystem<SimulationDataFile>("SimVer0.2", new System.Action<SimulationDataFile>[] { WorldManager.main.LoadDataV2 } ),
         };
 
         public static string SimulationVersion { get { return SimulationVersionLoads[SimulationVersionLoads.Length - 1].Version; } }
 
         public static SimulationDataFile SaveSimulation()
         {
-            WorldManager.main.SaveData(out CompiledAnimalDataFile[] animalData, out WorldDataFile<int> ground, out WorldDataFile<int> animals);
+            WorldManager.main.SaveData(out CompiledAnimalDataFile[] animalData, out ControllerDataFile[] controllers, out WorldDataFile<int> ground, out WorldDataFile<int> animals, out int currentID);
             SimulationDataFile data = new SimulationDataFile
             {
                 Version = SimulationVersion,
                 Profiles = animalData,
+                Controllers = controllers,
                 Ground = ground,
-                Animals = animals
+                Animals = animals,
+                CurrentID = currentID
             };
             return data;
         }

@@ -182,6 +182,7 @@ namespace EPQ.Animals
 
             // Setup color
             NodeManager manager = o.GetComponent<NodeManager>();
+            manager.OnColorChange(this, new AnimalProfile.ColorChangeArgs() { NewColor = profile.ColorCode });
             profile.OnColorChange += manager.OnColorChange;
             profile.OnAnimalChange += manager.OnToggleAnimal;
             manager.ColorCode.color = profile.ColorCode;
@@ -232,19 +233,23 @@ namespace EPQ.Animals
         }
         public AnimalProfile GetProfile(int ID)
         {
-            for (int i = ID; i >= 0; i--)
+            int index = ID < Profiles.Count ? ID : Profiles.Count - 1;
+            while(index >= 0)
             {
-                if (Profiles[i].ID == ID)
-                    return Profiles[i];
+                if (Profiles[index].ID == ID)
+                    return Profiles[index];
+                index--;
             }
             return null;
         }
         public int GetIndex(int ID)
         {
-            for (int i = ID; i >= 0; i--)
+            int index = ID < Profiles.Count ? ID : Profiles.Count - 1;
+            while (index >= 0)
             {
-                if (Profiles[i].ID == ID)
-                    return i;
+                if (Profiles[index].ID == ID)
+                    return index;
+                index--;
             }
             return -1;
         }

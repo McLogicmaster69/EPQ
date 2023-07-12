@@ -9,8 +9,11 @@ namespace EPQ.Data
     {
         public string Version;
 
+        public int CurrentID;
+
         public WorldDataFile<int> Ground;
         public WorldDataFile<int> Animals;
         public CompiledAnimalDataFile[] Profiles;
+        public ControllerDataFile[] Controllers;
     }
 }

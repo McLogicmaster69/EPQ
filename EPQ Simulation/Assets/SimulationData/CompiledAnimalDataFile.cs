@@ -10,6 +10,7 @@ namespace EPQ.Data
     {
         public int ID;
         public int[] CanEat;
+        public int[] CanBeEatenBy;
         public AnimalAttributes Attributes;
 
         public float r;
@@ -20,6 +21,7 @@ namespace EPQ.Data
         {
             ID = profile.ID;
             CanEat = profile.CanEat.ToArray();
+            CanBeEatenBy = profile.CanBeEatenBy.ToArray();
             Attributes = new AnimalAttributes(profile.Attributes);
             r = profile.Color.r;
             g = profile.Color.g;

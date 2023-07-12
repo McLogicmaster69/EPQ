@@ -370,16 +370,15 @@ namespace EPQ.Worlds
         {
             for (int _x = -radius; _x <= radius; _x++)
             {
-                int y1 = radius - Mathf.Abs(_x);
-                int y2 = radius - Mathf.Abs(_x);
-                if (InBounds(x + _x, y + y1))
+                int _y = radius - Mathf.Abs(_x);
+                if (InBounds(x + _x, y + _y))
                 {
-                    if (worldData[x + _x, y + y1].Equals(value))
+                    if (worldData[x + _x, y + _y].Equals(value))
                         return true;
                 }
-                if (InBounds(x + _x, y + y2))
+                if (InBounds(x + _x, y - _y))
                 {
-                    if (worldData[x + _x, y + y2].Equals(value))
+                    if (worldData[x + _x, y - _y].Equals(value))
                         return true;
                 }
             }
@@ -389,23 +388,22 @@ namespace EPQ.Worlds
         {
             for (int _x = -radius; _x <= radius; _x++)
             {
-                int y1 = radius - Mathf.Abs(_x);
-                int y2 = radius - Mathf.Abs(_x);
-                if (InBounds(x + _x, y + y1))
+                int _y = radius - Mathf.Abs(_x);
+                if (InBounds(x + _x, y + _y))
                 {
-                    if (worldData[x + _x, y + y1].Equals(value))
+                    if (worldData[x + _x, y + _y].Equals(value))
                     {
                         xPos = x + _x;
-                        yPos = y + y1;
+                        yPos = y + _y;
                         return true;
                     }
                 }
-                if (InBounds(x + _x, y + y2))
+                if (InBounds(x + _x, y - _y))
                 {
-                    if (worldData[x + _x, y + y2].Equals(value))
+                    if (worldData[x + _x, y - _y].Equals(value))
                     {
                         xPos = x + _x;
-                        yPos = y + y2;
+                        yPos = y - _y;
                         return true;
                     }
                 }
@@ -576,15 +574,19 @@ namespace EPQ.Worlds
                 && y >= 0
                 && y < Y;
         }
+        public Vector2Int PutInBounds(Vector2Int position) => new Vector2Int(Mathf.Clamp(position.x, 0, X - 1), Mathf.Clamp(position.y, 0, Y - 1));
+        public Vector2Int GetRandomPosition() => new Vector2Int(Random.Range(0, X), Random.Range(0, Y));
 
-        public void MoveValue(int startX, int startY, int endX, int endY)
+        public T MoveValue(int startX, int startY, int endX, int endY)
         {
-            MoveValue(startX, startY, endX, endY, DefaultValue);
+            return MoveValue(startX, startY, endX, endY, DefaultValue);
         }
-        public void MoveValue(int startX, int startY, int endX, int endY, T replaceValue)
+        public T MoveValue(int startX, int startY, int endX, int endY, T replaceValue)
         {
+            T ret = worldData[endX, endY];
             worldData[endX, endY] = worldData[startX, startY];
             worldData[startX, startY] = replaceValue;
+            return ret;
         }
     }
 }
