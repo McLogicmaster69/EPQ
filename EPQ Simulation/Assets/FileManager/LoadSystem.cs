@@ -6,20 +6,29 @@ using UnityEngine;
 
 namespace EPQ.Files
 {
-    public class LoadSystem<T>
+    /// <summary>
+    /// Contains a load method that is ran under a specific version
+    /// </summary>
+    /// <typeparam name="FileType"></typeparam>
+    public class LoadSystem<FileType>
     {
         public string Version { get; private set; }
-        public Action<T>[] Methods { get; private set; }
+        public LoadMethod<FileType>[] Methods { get; private set; }
 
-        public LoadSystem(string version, Action<T>[] methods)
+        /// <summary>
+        /// Creates a new load system
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="methods"></param>
+        public LoadSystem(string version, LoadMethod<FileType>[] methods)
         {
             Version = version;
             Methods = methods;
         }
 
-        public void CallMethods(T file)
+        public void CallMethods(FileType file)
         {
-            foreach(Action<T> method in Methods)
+            foreach(LoadMethod<FileType> method in Methods)
             {
                 method(file);
             }

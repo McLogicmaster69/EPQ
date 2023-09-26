@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace EPQ.Data
 {
+    /// <summary>
+    /// Contains data about a world that can be saved
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [System.Serializable]
     public class WorldDataFile<T>
     {

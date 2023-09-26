@@ -11,44 +11,47 @@ using EPQ.UI;
 
 namespace EPQ.Compiler
 {
+    /// <summary>
+    /// Takes the input from the editor and compiles into data that can be ran by the simulation
+    /// </summary>
     public class WorldCompiler : MonoBehaviour
     {
-        public static readonly int GRASS_ID = 0;
-        public static readonly int WATER_ID = 1;
+        public const int GRASS_ID = 0;
+        public const int WATER_ID = 1;
 
         [Header("UI")]
-        public TMP_Dropdown WorldType;
-        public TMP_InputField WorldSeed;
-        public Slider WorldSizeSlider;
-        public TMP_InputField WorldSizeInput;
-        public AttributeSlider AnimalPercentSlider;
-        public TMP_Text StatusText;
-        public GameObject GoToSimulationButton;
+        [SerializeField] private TMP_Dropdown WorldType;
+        [SerializeField] private TMP_InputField WorldSeed;
+        [SerializeField] private Slider WorldSizeSlider;
+        [SerializeField] private TMP_InputField WorldSizeInput;
+        [SerializeField] private AttributeSlider AnimalPercentSlider;
+        [SerializeField] private TMP_Text StatusText;
+        [SerializeField] private GameObject GoToSimulationButton;
 
         [Header("River UI")]
-        public GameObject RiverOptionButton;
-        public GameObject RiverOptionsUI;
-        public Slider RiverFrequencySlider;
-        public TMP_InputField RiverFrequencyInput;
-        public Slider RiverSizeSlider;
-        public TMP_InputField RiverSizeInput;
-        public Slider RiverConcentrationSlider;
-        public TMP_InputField RiverConcentrationInput;
+        [SerializeField] private GameObject RiverOptionButton;
+        [SerializeField] private GameObject RiverOptionsUI;
+        [SerializeField] private Slider RiverFrequencySlider;
+        [SerializeField] private TMP_InputField RiverFrequencyInput;
+        [SerializeField] private Slider RiverSizeSlider;
+        [SerializeField] private TMP_InputField RiverSizeInput;
+        [SerializeField] private Slider RiverConcentrationSlider;
+        [SerializeField] private TMP_InputField RiverConcentrationInput;
 
         [Header("Lake UI")]
-        public GameObject LakeOptionButton;
-        public GameObject LakeOptionsUI;
-        public Slider LakeFrequencySlider;
-        public TMP_InputField LakeFrequencyInput;
-        public Slider LakeSizeSlider;
-        public TMP_InputField LakeSizeInput;
-        public Slider LakeConcentrationSlider;
-        public TMP_InputField LakeConcentrationInput;
+        [SerializeField] private GameObject LakeOptionButton;
+        [SerializeField] private GameObject LakeOptionsUI;
+        [SerializeField] private Slider LakeFrequencySlider;
+        [SerializeField] private TMP_InputField LakeFrequencyInput;
+        [SerializeField] private Slider LakeSizeSlider;
+        [SerializeField] private TMP_InputField LakeSizeInput;
+        [SerializeField] private Slider LakeConcentrationSlider;
+        [SerializeField] private TMP_InputField LakeConcentrationInput;
 
         [Header("Load")]
-        public GameObject LoadUI;
-        public TMP_InputField FileName;
-        public TMP_Text LoadStatusText;
+        [SerializeField] private GameObject LoadUI;
+        [SerializeField] private TMP_InputField FileName;
+        [SerializeField] private TMP_Text LoadStatusText;
 
         [Header("World")]
         public int WorldSize = 50;

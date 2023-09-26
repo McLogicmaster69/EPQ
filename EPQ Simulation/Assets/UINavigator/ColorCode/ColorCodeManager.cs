@@ -7,11 +7,18 @@ using UnityEngine.UI;
 
 namespace EPQ.Colors
 {
+    /// <summary>
+    /// Manages the UI for animal color
+    /// </summary>
     public class ColorCodeManager : MonoBehaviour
     {
-        public int CurrentIndex;
-        public Slider[] Sliders;
-        public TMP_InputField[] Numbers;
+        /// <summary>
+        /// The index of the profile being looked at
+        /// </summary>
+        public int CurrentIndex { get; set; }
+
+        [SerializeField] private Slider[] Sliders;
+        [SerializeField] private TMP_InputField[] Numbers;
 
         public void ChangeRSliderValue(System.Single value)
         {

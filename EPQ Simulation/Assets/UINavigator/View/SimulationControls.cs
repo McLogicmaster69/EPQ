@@ -9,26 +9,29 @@ using UnityEngine.UI;
 
 namespace EPQ.View
 {
+    /// <summary>
+    /// Gives functionality to the controls given to the user to control the simulation
+    /// </summary>
     public class SimulationControls : MonoBehaviour
     {
         [Header("Main UI")]
-        public GameObject ExpandedControls;
-        public GameObject MinimisedControls;
-        public GameObject NoSimulationPanel;
+        [SerializeField] private GameObject ExpandedControls;
+        [SerializeField] private GameObject MinimisedControls;
+        [SerializeField] private GameObject NoSimulationPanel;
 
         [Header("Save UI")]
-        public GameObject SaveUI;
-        public TMP_InputField FileName;
+        [SerializeField] private GameObject SaveUI;
+        [SerializeField] private TMP_InputField FileName;
 
         [Header("Clock buttons")]
 
-        public ButtonInfo PlayButton;
-        public ButtonInfo StepButton;
-        public ButtonInfo MinimisedPlayButton;
-        public ButtonInfo MinimisedStepButton;
-        public TMP_InputField Input;
-        public Color PlayingColor;
-        public Color PausedColor;
+        [SerializeField] private ButtonInfo PlayButton;
+        [SerializeField] private ButtonInfo StepButton;
+        [SerializeField] private ButtonInfo MinimisedPlayButton;
+        [SerializeField] private ButtonInfo MinimisedStepButton;
+        [SerializeField] private TMP_InputField Input;
+        [SerializeField] private Color PlayingColor;
+        [SerializeField] private Color PausedColor;
 
         private bool minimised = false;
 

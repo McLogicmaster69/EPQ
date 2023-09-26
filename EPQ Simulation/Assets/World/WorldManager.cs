@@ -9,22 +9,25 @@ using static EPQ.Clock;
 
 namespace EPQ.Worlds
 {
+    /// <summary>
+    /// Manages the world during a simulation
+    /// </summary>
     public class WorldManager : MonoBehaviour
     {
-        public static readonly int TICKS_IN_DAY = 50;
-        public static readonly int STARTING_FOOD = 3;
-        public static readonly int MAX_FOOD = 10;
+        public const int TICKS_IN_DAY = 50;
+        public const int STARTING_FOOD = 3;
+        public const int MAX_FOOD = 10;
 
         public static WorldManager main;
 
         public bool ActiveSimulation { get; private set; } = false;
 
-        public GameObject ActiveSimulationText;
-        public GameObject Camera;
-        public GameObject AnimalControllerObject;
-        public Material[] Materials;
-        public Transform GroundParent;
-        public Transform AnimalParent;
+        [SerializeField] private GameObject ActiveSimulationText;
+        [SerializeField] private GameObject Camera;
+        [SerializeField] private GameObject AnimalControllerObject;
+        [SerializeField] private Material[] Materials;
+        [SerializeField] private Transform GroundParent;
+        [SerializeField] private Transform AnimalParent;
         public Material BlankMaterial;
 
         public World<int> GroundWorld { get; private set; }
@@ -165,7 +168,7 @@ namespace EPQ.Worlds
                 }
             }
             DeleteExtraControllers();
-            Clock.main.handledTick = true;
+            Clock.main.HandledTick = true;
         }
         #endregion
         #region Animal Grid
@@ -267,7 +270,7 @@ namespace EPQ.Worlds
             }
             for (int i = 0; i < data.Controllers.Length; i++)
             {
-                Controllers[i].InitIndexes(data.Controllers[i]);
+                Controllers[i].InitTargets(data.Controllers[i]);
             }
 
             ActiveSimulation = true;

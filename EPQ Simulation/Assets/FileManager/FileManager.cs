@@ -8,15 +8,18 @@ using UnityEngine;
 
 namespace EPQ.Files
 {
+    /// <summary>
+    /// Manages all saving and loading that occurs in the program
+    /// </summary>
     public static class FileManager
     {
         #region Base
         public static readonly LoadSystem<DataFile>[] VersionLoads =
         {
-            new LoadSystem<DataFile>("FlVrsn0.1", new System.Action<DataFile>[2] {  AnimalUINavigator.main.LoadFromFileV1, PlaygroundNavigator.main.LoadFromFileV1} ),
-            new LoadSystem<DataFile>("FlVrsn0.2", new System.Action<DataFile>[2] {  AnimalUINavigator.main.LoadFromFileV2, PlaygroundNavigator.main.LoadFromFileV2} ),
-            new LoadSystem<DataFile>("FlVrsn0.3", new System.Action<DataFile>[2] {  AnimalUINavigator.main.LoadFromFileV3, PlaygroundNavigator.main.LoadFromFileV3} ),
-            new LoadSystem<DataFile>("FlVrsn0.4", new System.Action<DataFile>[2] {  AnimalUINavigator.main.LoadFromFileV4, PlaygroundNavigator.main.LoadFromFileV4} )
+            new LoadSystem<DataFile>("FlVrsn0.1", new LoadMethod<DataFile>[2] {  AnimalUINavigator.main.LoadFromFileV1, PlaygroundNavigator.main.LoadFromFileV1} ),
+            new LoadSystem<DataFile>("FlVrsn0.2", new LoadMethod<DataFile>[2] {  AnimalUINavigator.main.LoadFromFileV2, PlaygroundNavigator.main.LoadFromFileV2} ),
+            new LoadSystem<DataFile>("FlVrsn0.3", new LoadMethod<DataFile>[2] {  AnimalUINavigator.main.LoadFromFileV3, PlaygroundNavigator.main.LoadFromFileV3} ),
+            new LoadSystem<DataFile>("FlVrsn0.4", new LoadMethod<DataFile>[2] {  AnimalUINavigator.main.LoadFromFileV4, PlaygroundNavigator.main.LoadFromFileV4} )
         };
         public static string Version { get { return VersionLoads[VersionLoads.Length - 1].Version; } } 
         public static DataFile SaveFile()
@@ -59,8 +62,8 @@ namespace EPQ.Files
         #region Simulation
         public static readonly LoadSystem<SimulationDataFile>[] SimulationVersionLoads =
         {
-            new LoadSystem<SimulationDataFile>("SimVer0.1", new System.Action<SimulationDataFile>[] { WorldManager.main.LoadDataV1 } ),
-            new LoadSystem<SimulationDataFile>("SimVer0.2", new System.Action<SimulationDataFile>[] { WorldManager.main.LoadDataV2 } ),
+            new LoadSystem<SimulationDataFile>("SimVer0.1", new LoadMethod<SimulationDataFile>[] { WorldManager.main.LoadDataV1 } ),
+            new LoadSystem<SimulationDataFile>("SimVer0.2", new LoadMethod<SimulationDataFile>[] { WorldManager.main.LoadDataV2 } ),
         };
 
         public static string SimulationVersion { get { return SimulationVersionLoads[SimulationVersionLoads.Length - 1].Version; } }

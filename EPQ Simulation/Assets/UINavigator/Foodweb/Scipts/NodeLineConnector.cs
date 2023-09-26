@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 namespace EPQ.Foodweb.Connections
 {
+    /// <summary>
+    /// Controls how the connection between two nodes are visually shown
+    /// </summary>
     public class NodeLineConnector : MonoBehaviour, IPointerClickHandler
     {
         public RectTransform Target1;

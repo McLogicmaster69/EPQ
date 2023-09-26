@@ -5,7 +5,9 @@ using UnityEngine;
 
 namespace EPQ.Cam
 {
-
+    /// <summary>
+    /// Controls the camera when looking at the simulation
+    /// </summary>
     public class MoveCamera : MonoBehaviour
     {
         public float Speed = 10f;

@@ -7,14 +7,17 @@ using UnityEngine.UI;
 
 namespace EPQ.Animals
 {
+    /// <summary>
+    /// Manages the slider for an attribute
+    /// </summary>
     [System.Serializable]
     public class AttributeSlider
     {
-        public int MinValue = 1;
-        public int MaxValue = 10;
+        [SerializeField] private int MinValue = 1;
+        [SerializeField] private int MaxValue = 10;
 
-        public TMP_InputField Text;
-        public Slider Slider;
+        [SerializeField] private TMP_InputField Text;
+        [SerializeField] private Slider Slider;
 
         private Action<int> UpdateValue;
 

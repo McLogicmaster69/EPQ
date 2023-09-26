@@ -14,36 +14,39 @@ namespace EPQ.Animals
         public static AnimalUINavigator main;
 
         [Header("Buttons")]
-        public GameObject PreviousButton;
-        public GameObject NextButton;
+        [SerializeField] private GameObject PreviousButton;
+        [SerializeField] private GameObject NextButton;
 
         [Header("Tab Properties")]
-        public int StartingY = -80;
-        public int Height = 160;
+        [SerializeField] private int StartingY = -80;
+        [SerializeField] private int Height = 160;
 
         [Header("Animal Profiles")]
-        public GameObject ProfileObject;
-        public Transform ProfilesTab;
+        [SerializeField] private GameObject ProfileObject;
+        [SerializeField] private Transform ProfilesTab;
 
         [Header("Nodes")]
-        public GameObject Node;
-        public Transform NodeParent;
-        public float NodeSize = 10f;
-
-        public List<AnimalProfile> Profiles = new List<AnimalProfile>();
+        [SerializeField] private GameObject Node;
+        [SerializeField] private Transform NodeParent;
+        [SerializeField] private float NodeSize = 10f;
 
         [Header("Other")]
-        public GameObject LonelyText;
-        public GameObject FriendsText;
-        public GameObject ColorCodeUI;
+        [SerializeField] private GameObject LonelyText;
+        [SerializeField] private GameObject FriendsText;
+        [SerializeField] private GameObject ColorCodeUI;
+
+        /// <summary>
+        /// All the existing profiles
+        /// </summary>
+        public List<AnimalProfile> Profiles { get; private set; } = new List<AnimalProfile>();
 
         private const int ItemsPerPage = 5;
 
-        private List<GameObject> profileObjects = new List<GameObject>();
-        private List<int> visibleIndexes = new List<int>();
-        private int CurrentPage = 0;
-        private int CurrentIDCount = 0;
-        private int CurrentColorIndex = -1;
+        private List<GameObject> _profileObjects = new List<GameObject>();
+        private List<int> _visibleIndexes = new List<int>();
+        private int _currentPage = 0;
+        private int _currentIDCount = 0;
+        private int _currentColorIndex = -1;
 
         private void Awake()
         {
@@ -57,20 +60,20 @@ namespace EPQ.Animals
 
         public void NextPage()
         {
-            CurrentPage++;
+            _currentPage++;
             UpdateButtons();
             UpdateUI();
         }
         public void PreviousPage()
         {
-            CurrentPage--;
+            _currentPage--;
             UpdateButtons();
             UpdateUI();
         }
         private void UpdateButtons()
         {
-            PreviousButton.SetActive(CurrentPage != 0);
-            NextButton.SetActive(CurrentPage + 1 < 
+            PreviousButton.SetActive(_currentPage != 0);
+            NextButton.SetActive(_currentPage + 1 < 
                 ((Profiles.Count / ItemsPerPage) * ItemsPerPage == Profiles.Count 
                 ? Profiles.Count / ItemsPerPage
                 : Profiles.Count / ItemsPerPage + 1));
@@ -79,7 +82,7 @@ namespace EPQ.Animals
         public void CreateAnimal()
         {
             // Create profile and assign node
-            AnimalProfile newProfile = AnimalProfile.BlankProfile(CurrentIDCount);
+            AnimalProfile newProfile = AnimalProfile.BlankProfile(_currentIDCount);
             newProfile.Node = CreateNode(newProfile).GetComponent<NodeManager>();
 
             // Give color code
@@ -88,7 +91,7 @@ namespace EPQ.Animals
 
             // Update UI
             Profiles.Add(newProfile);
-            CurrentIDCount++;
+            _currentIDCount++;
             UpdateButtons();
             UpdateUI();
         }
@@ -102,40 +105,40 @@ namespace EPQ.Animals
         }
         private void HandleColorUIOnDelete(int index)
         {
-            if (index == CurrentColorIndex)
+            if (index == _currentColorIndex)
                 CloseColorCodeUI();
-            else if (index < CurrentColorIndex)
+            else if (index < _currentColorIndex)
             {
                 ColorCodeUI.GetComponent<ColorCodeManager>().CurrentIndex--;
-                CurrentColorIndex--;
+                _currentColorIndex--;
             }
         }
         private void OrginaizeUIUponDelete(int index)
         {
             bool found = false;
-            for (int i = 0; i < visibleIndexes.Count; i++)
+            for (int i = 0; i < _visibleIndexes.Count; i++)
             {
                 if (found)
                 {
-                    AnimalProfileManager manager = profileObjects[i].GetComponent<AnimalProfileManager>();
+                    AnimalProfileManager manager = _profileObjects[i].GetComponent<AnimalProfileManager>();
                     manager.Index--;
                 }
-                else if (index == visibleIndexes[i])
+                else if (index == _visibleIndexes[i])
                 {
-                    AnimalProfileManager manager = profileObjects[i].GetComponent<AnimalProfileManager>();
+                    AnimalProfileManager manager = _profileObjects[i].GetComponent<AnimalProfileManager>();
                     Profiles[manager.Index].OnColorChange -= manager.OnColorChange;
                     Profiles[manager.Index].OnAnimalChange -= manager.OnAnimalToggle;
-                    Destroy(profileObjects[i]);
+                    Destroy(_profileObjects[i]);
                     found = true;
-                    visibleIndexes.RemoveAt(i);
-                    profileObjects.RemoveAt(i);
+                    _visibleIndexes.RemoveAt(i);
+                    _profileObjects.RemoveAt(i);
                     i--;
                 }
             }
         }
         private void PreviousPageIfEmpty()
         {
-            if (CurrentPage * ItemsPerPage == Profiles.Count && Profiles.Count != 0)
+            if (_currentPage * ItemsPerPage == Profiles.Count && Profiles.Count != 0)
             {
                 PreviousPage();
             }
@@ -161,12 +164,12 @@ namespace EPQ.Animals
             ColorCodeManager colorCode = ColorCodeUI.GetComponent<ColorCodeManager>();
             colorCode.CurrentIndex = index;
             colorCode.SetupColor(Profiles[index].ColorCode);
-            CurrentColorIndex = index;
+            _currentColorIndex = index;
         }
         public void CloseColorCodeUI()
         {
             ColorCodeUI.SetActive(false);
-            CurrentColorIndex = -1;
+            _currentColorIndex = -1;
         }
         public void OpenBehaviourUI(int index)
         {
@@ -178,11 +181,11 @@ namespace EPQ.Animals
             // Setup display
             GameObject o = Instantiate(Node, NodeParent);
             o.GetComponent<NodeManager>().Profile = profile;
-            o.GetComponent<RectTransform>().anchoredPosition = new Vector2(CurrentIDCount * NodeSize, 0);
+            o.GetComponent<RectTransform>().anchoredPosition = new Vector2(_currentIDCount * NodeSize, 0);
 
             // Setup color
             NodeManager manager = o.GetComponent<NodeManager>();
-            manager.OnColorChange(this, new AnimalProfile.ColorChangeArgs() { NewColor = profile.ColorCode });
+            manager.OnColorChange(this, new ColorChangeArgs() { NewColor = profile.ColorCode });
             profile.OnColorChange += manager.OnColorChange;
             profile.OnAnimalChange += manager.OnToggleAnimal;
             manager.ColorCode.color = profile.ColorCode;
@@ -193,15 +196,15 @@ namespace EPQ.Animals
         public void UpdateUI()
         {
             // Clear old UI list
-            for (int i = 0; i < profileObjects.Count; i++)
+            for (int i = 0; i < _profileObjects.Count; i++)
             {
-                AnimalProfileManager manager = profileObjects[i].GetComponent<AnimalProfileManager>();
+                AnimalProfileManager manager = _profileObjects[i].GetComponent<AnimalProfileManager>();
                 Profiles[manager.Index].OnColorChange -= manager.OnColorChange;
                 Profiles[manager.Index].OnAnimalChange -= manager.OnAnimalToggle;
-                Destroy(profileObjects[i]);
+                Destroy(_profileObjects[i]);
             }
-            profileObjects = new List<GameObject>();
-            visibleIndexes = new List<int>();
+            _profileObjects = new List<GameObject>();
+            _visibleIndexes = new List<int>();
 
             // Display lonely text
             if(Profiles.Count == 0)
@@ -214,7 +217,7 @@ namespace EPQ.Animals
             FriendsText.SetActive(false);
 
             // Append new UI elements
-            for (int i = CurrentPage * ItemsPerPage; i < ItemsPerPage * (CurrentPage + 1); i++)
+            for (int i = _currentPage * ItemsPerPage; i < ItemsPerPage * (_currentPage + 1); i++)
             {
                 if (i >= Profiles.Count)
                     break;
@@ -226,28 +229,28 @@ namespace EPQ.Animals
                 manager.Index = i;
                 manager.SetupWithProfile(Profiles[i]);
 
-                o.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, StartingY - (i - CurrentPage * ItemsPerPage) * Height);
-                profileObjects.Add(o);
-                visibleIndexes.Add(i);
+                o.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, StartingY - (i - _currentPage * ItemsPerPage) * Height);
+                _profileObjects.Add(o);
+                _visibleIndexes.Add(i);
             }
         }
-        public AnimalProfile GetProfile(int ID)
+        public AnimalProfile GetProfile(int id)
         {
-            int index = ID < Profiles.Count ? ID : Profiles.Count - 1;
+            int index = id < Profiles.Count ? id : Profiles.Count - 1;
             while(index >= 0)
             {
-                if (Profiles[index].ID == ID)
+                if (Profiles[index].ID == id)
                     return Profiles[index];
                 index--;
             }
             return null;
         }
-        public int GetIndex(int ID)
+        public int GetIndex(int id)
         {
-            int index = ID < Profiles.Count ? ID : Profiles.Count - 1;
+            int index = id < Profiles.Count ? id : Profiles.Count - 1;
             while (index >= 0)
             {
-                if (Profiles[index].ID == ID)
+                if (Profiles[index].ID == id)
                     return index;
                 index--;
             }
@@ -255,13 +258,13 @@ namespace EPQ.Animals
         }
         public GameObject GetObject(int index)
         {
-            return profileObjects[index];
+            return _profileObjects[index];
         }
 
         public AnimalUIDataFile SaveAnimalUIDataFile()
         {
             AnimalUIDataFile file = new AnimalUIDataFile();
-            file.CurrentIDCount = CurrentIDCount;
+            file.CurrentIDCount = _currentIDCount;
             return file;
         }
         public void SaveAnimalProfileDataFiles(out AnimalProfileDataFile[] profileFiles, out NodeDataFile[] nodeFiles)
@@ -306,7 +309,7 @@ namespace EPQ.Animals
             }
 
             // Load in new data
-            CurrentIDCount = file.AnimalUI.CurrentIDCount;
+            _currentIDCount = file.AnimalUI.CurrentIDCount;
 
             for (int i = 0; i < file.AnimalProfiles.Length; i++)
             {
@@ -336,7 +339,7 @@ namespace EPQ.Animals
             }
 
             // Load in new data
-            CurrentIDCount = file.AnimalUI.CurrentIDCount;
+            _currentIDCount = file.AnimalUI.CurrentIDCount;
 
             for (int i = 0; i < file.AnimalProfiles.Length; i++)
             {
@@ -369,7 +372,7 @@ namespace EPQ.Animals
             }
 
             // Load in new data
-            CurrentIDCount = file.AnimalUI.CurrentIDCount;
+            _currentIDCount = file.AnimalUI.CurrentIDCount;
 
             for (int i = 0; i < file.AnimalProfiles.Length; i++)
             {
@@ -402,7 +405,7 @@ namespace EPQ.Animals
             }
 
             // Load in new data
-            CurrentIDCount = file.AnimalUI.CurrentIDCount;
+            _currentIDCount = file.AnimalUI.CurrentIDCount;
 
             for (int i = 0; i < file.AnimalProfiles.Length; i++)
             {

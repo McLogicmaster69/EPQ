@@ -4,9 +4,15 @@ using UnityEngine;
 
 namespace EPQ.Data
 {
+    /// <summary>
+    /// Contains data about a node to be saved
+    /// </summary>
     [System.Serializable]
     public class NodeDataFile
     {
-        public float[] NodePosition;
+        /// <summary>
+        /// Where the node is located in the food web
+        /// </summary>
+        public float[] NodePosition { get; set; }
     }
 }

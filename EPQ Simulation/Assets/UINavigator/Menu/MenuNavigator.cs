@@ -7,16 +7,19 @@ using EPQ.Files;
 
 namespace EPQ.Menu
 {
+    /// <summary>
+    /// Manages the main menu displayed to the user
+    /// </summary>
     public class MenuNavigator : MonoBehaviour
     {
-        public GameObject MainMenu;
-        public GameObject SaveMenu;
-        public GameObject LoadMenu;
-        public GameObject OptionsMenu;
+        [SerializeField] private GameObject MainMenu;
+        [SerializeField] private GameObject SaveMenu;
+        [SerializeField] private GameObject LoadMenu;
+        [SerializeField] private GameObject OptionsMenu;
 
-        public TMP_InputField SaveName;
-        public TMP_InputField LoadName;
-        public TMP_Text LoadStatusText;
+        [SerializeField] private TMP_InputField SaveName;
+        [SerializeField] private TMP_InputField LoadName;
+        [SerializeField] private TMP_Text LoadStatusText;
 
         private const string LOAD_FAILED_MESSAGE = "FAILED TO OPEN FILE ";
 

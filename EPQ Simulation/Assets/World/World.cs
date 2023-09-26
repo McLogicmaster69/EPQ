@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace EPQ.Worlds
 {
+    /// <summary>
+    /// Contains information about a world, specifically the layout of it
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class World<T>
     {
         private T[,] worldData;

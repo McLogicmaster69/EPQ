@@ -4,109 +4,112 @@ using UnityEngine;
 
 namespace EPQ.Meshes
 {
+    /// <summary>
+    /// Creates the shape of the world where the simulation will take place
+    /// </summary>
     public class MeshGroup
     {
-        public List<SquareMesh> meshes;
+        private List<SquareMesh> _meshes;
+        private int _totalVerts = 0;
+        private int _layer = 0;
+        private Material _material = null;
+        private float _border = 0f;
 
-        private int totalVerts = 0;
-        private const int MaxVerts = 50000;
-        private int Layer = 0;
-        private Material Material = null;
-        private float Border = 0f;
+        private const int MAX_VERTS = 50000;
 
         public MeshGroup()
         {
-            meshes = new List<SquareMesh>();
-            meshes.Add(new SquareMesh());
+            _meshes = new List<SquareMesh>();
+            _meshes.Add(new SquareMesh());
         }
         public MeshGroup(int layer)
         {
-            meshes = new List<SquareMesh>();
-            meshes.Add(new SquareMesh());
-            Layer = layer;
+            _meshes = new List<SquareMesh>();
+            _meshes.Add(new SquareMesh());
+            _layer = layer;
         }
         public MeshGroup(Material material)
         {
-            meshes = new List<SquareMesh>();
-            meshes.Add(new SquareMesh());
-            Material = material;
+            _meshes = new List<SquareMesh>();
+            _meshes.Add(new SquareMesh());
+            _material = material;
         }
         public MeshGroup(int layer, Material material)
         {
-            meshes = new List<SquareMesh>();
-            meshes.Add(new SquareMesh());
-            Layer = layer;
-            Material = material;
+            _meshes = new List<SquareMesh>();
+            _meshes.Add(new SquareMesh());
+            _layer = layer;
+            _material = material;
         }
         public MeshGroup(float border)
         {
-            meshes = new List<SquareMesh>();
-            meshes.Add(new SquareMesh(border));
-            Border = border;
+            _meshes = new List<SquareMesh>();
+            _meshes.Add(new SquareMesh(border));
+            _border = border;
         }
         public MeshGroup(int layer, float border)
         {
-            meshes = new List<SquareMesh>();
-            meshes.Add(new SquareMesh(border));
-            Layer = layer;
-            Border = border;
+            _meshes = new List<SquareMesh>();
+            _meshes.Add(new SquareMesh(border));
+            _layer = layer;
+            _border = border;
         }
         public MeshGroup(float border, Material material)
         {
-            meshes = new List<SquareMesh>();
-            meshes.Add(new SquareMesh(border));
-            Material = material;
-            Border = border;
+            _meshes = new List<SquareMesh>();
+            _meshes.Add(new SquareMesh(border));
+            _material = material;
+            _border = border;
         }
         public MeshGroup(int layer, float border, Material material)
         {
-            meshes = new List<SquareMesh>();
-            meshes.Add(new SquareMesh(border));
-            Layer = layer;
-            Material = material;
-            Border = border;
+            _meshes = new List<SquareMesh>();
+            _meshes.Add(new SquareMesh(border));
+            _layer = layer;
+            _material = material;
+            _border = border;
         }
 
         public void AddCube(int X, int Z)
         {
-            if (totalVerts > MaxVerts)
+            if (_totalVerts > MAX_VERTS)
             {
-                totalVerts -= MaxVerts;
-                meshes.Add(new SquareMesh(Border));
+                _totalVerts -= MAX_VERTS;
+                _meshes.Add(new SquareMesh(_border));
             }
-            meshes[meshes.Count - 1].AddCube(X, Z);
-            totalVerts += 6;
+            _meshes[_meshes.Count - 1].AddCube(X, Z);
+            _totalVerts += 6;
         }
         public List<GameObject> BuildMeshes()
         {
             List<GameObject> objects = new List<GameObject>();
-            foreach (SquareMesh mesh in meshes)
+            foreach (SquareMesh mesh in _meshes)
             {
                 GameObject o = GameObject.CreatePrimitive(PrimitiveType.Plane);
                 objects.Add(o);
                 o.GetComponent<MeshFilter>().mesh = mesh.Mesh;
                 o.GetComponent<MeshCollider>().sharedMesh = mesh.Mesh;
-                o.layer = Layer;
+                o.layer = _layer;
                 o.transform.position = new Vector3(-0.5f, 0, -0.5f);
-                if (Material != null)
-                    o.GetComponent<MeshRenderer>().material = Material;
+                if (_material != null)
+                    o.GetComponent<MeshRenderer>().material = _material;
             }
             return objects;
         }
         public List<GameObject> BuildMeshes(Transform parent)
         {
             List<GameObject> objects = new List<GameObject>();
-            foreach (SquareMesh mesh in meshes)
+            foreach (SquareMesh mesh in _meshes)
             {
                 GameObject o = GameObject.CreatePrimitive(PrimitiveType.Plane);
                 objects.Add(o);
                 o.transform.parent = parent;
                 o.GetComponent<MeshFilter>().mesh = mesh.Mesh;
                 o.GetComponent<MeshCollider>().sharedMesh = mesh.Mesh;
-                o.layer = Layer;
+                o.layer = _layer;
                 o.transform.position = new Vector3(-0.5f, 0, -0.5f);
-                if (Material != null)
-                    o.GetComponent<MeshRenderer>().material = Material;
+                if (_material != null)
+                    o.GetComponent<MeshRenderer>().material = _material;
             }
             return objects;
         }

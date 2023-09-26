@@ -1,4 +1,5 @@
 using EPQ.Animals;
+using EPQ.Colors;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -8,13 +9,17 @@ using static EPQ.Animals.AnimalProfile;
 
 namespace EPQ.Foodweb.Nodes
 {
+    /// <summary>
+    /// Manages the visual side of a node
+    /// </summary>
     public class NodeManager : MonoBehaviour
     {
         public AnimalProfile Profile;
-        public TMP_Text NameText;
-        public GameObject CreateConnectionButton;
+
+        [SerializeField] private TMP_Text NameText;
+        [SerializeField] private GameObject CreateConnectionButton;
         public Image ColorCode;
-        public Image BackgroundImage;
+        [SerializeField] private Image BackgroundImage;
 
         private void Update()
         {

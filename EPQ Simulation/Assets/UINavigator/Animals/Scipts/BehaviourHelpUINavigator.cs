@@ -5,13 +5,16 @@ using UnityEngine;
 
 namespace EPQ.Animals
 {
+    /// <summary>
+    /// Manages the UI help prompts given within the behaviour UI
+    /// </summary>
     public class BehaviourHelpUINavigator : MonoBehaviour
     {
         public static BehaviourHelpUINavigator main;
 
-        public GameObject UI;
-        public TMP_Text Attribute;
-        public TMP_Text Description;
+        [SerializeField] private GameObject UI;
+        [SerializeField] private TMP_Text Attribute;
+        [SerializeField] private TMP_Text Description;
 
         private void Awake()
         {

@@ -4,14 +4,17 @@ using UnityEngine;
 
 namespace EPQ.Meshes
 {
+    /// <summary>
+    /// Holds the information about a square mesh
+    /// </summary>
     public sealed class SquareMesh
     {
-        private List<Vector3> Verts;
-        private List<int> Tris;
+        private List<Vector3> _verts;
+        private List<int> _tris;
         public int Cubes { get; private set; } = 0;
         private int CubesAdd { get { return Cubes * 4; } }
-        public Vector3[] Verticies { get { return Verts.ToArray(); } }
-        public int[] Triangles { get { return Tris.ToArray(); } }
+        public Vector3[] Vertices { get { return _verts.ToArray(); } }
+        public int[] Triangles { get { return _tris.ToArray(); } }
 
         private float Border = 0f;
 
@@ -21,8 +24,8 @@ namespace EPQ.Meshes
             {
                 Mesh m = new Mesh
                 {
-                    vertices = Verts.ToArray(),
-                    triangles = Tris.ToArray()
+                    vertices = _verts.ToArray(),
+                    triangles = _tris.ToArray()
                 };
                 m.RecalculateNormals();
                 m.RecalculateBounds();
@@ -31,13 +34,13 @@ namespace EPQ.Meshes
         }
         public SquareMesh()
         {
-            Verts = new List<Vector3>();
-            Tris = new List<int>();
+            _verts = new List<Vector3>();
+            _tris = new List<int>();
         }
         public SquareMesh(float border)
         {
-            Verts = new List<Vector3>();
-            Tris = new List<int>();
+            _verts = new List<Vector3>();
+            _tris = new List<int>();
             Border = border;
         }
         public void AddCube(int X, int Z)
@@ -62,14 +65,14 @@ namespace EPQ.Meshes
         {
             foreach(Vector3 v in list)
             {
-                Verts.Add(v);
+                _verts.Add(v);
             }
         }
         private void AddToTris(List<int> list)
         {
             foreach(int i in list)
             {
-                Tris.Add(i);
+                _tris.Add(i);
             }
         }
     }

@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace EPQ.Data
 {
+    /// <summary>
+    /// Contains information about a simulation that can be saved
+    /// </summary>
     [System.Serializable]
     public class SimulationDataFile
     {

@@ -7,37 +7,86 @@ using UnityEngine;
 
 namespace EPQ.Animals
 {
+    /// <summary>
+    /// Controls the animal within the simulation
+    /// </summary>
     public class AnimalController : MonoBehaviour
     {
+        /// <summary>
+        /// The ID of the animal
+        /// </summary>
         public int ID { get; private set; }
+
+        /// <summary>
+        /// The index of the animal profile associated with this animal
+        /// </summary>
         public int ProfileIndex { get; private set; }
-        public bool IsAnimal { get { return Profile.Attributes.IsAnimal; } }
+
+        /// <summary>
+        /// If it is an animal or a plant
+        /// </summary>
+        public bool IsAnimal { get { return _profile.Attributes.IsAnimal; } }
+
+        /// <summary>
+        /// How many ticks of food until it dies
+        /// </summary>
         public int TicksOfFood { get; private set; }
+
+        /// <summary>
+        /// How many ticks until it regrows
+        /// </summary>
         public int TicksToRegrow { get; private set; }
+
+        /// <summary>
+        /// How many ticks until it moves
+        /// </summary>
         public int TicksToMove { get; private set; }
+
+        /// <summary>
+        /// How many ticks since it moved to a random position
+        /// </summary>
         public int TicksSinceLastRandom { get; private set; }
+
+        /// <summary>
+        /// The current position of the animal
+        /// </summary>
         public Vector2Int CurrentPosition { get; private set; }
+
+        /// <summary>
+        /// If the plant is grown and available to eat
+        /// </summary>
         public bool IsGrown { get; private set; }
+
+        /// <summary>
+        /// A sorted list of what the animal cat eat
+        /// </summary>
         public List<int> SortedEat { get; private set; }
 
-        private CompiledAnimalProfile Profile;
-        private Material Material;
-        private WorldManager Manager;
+        private CompiledAnimalProfile _profile;
+        private Material _material;
+        private WorldManager _manager;
 
-        private AnimalController Target;
-        private AnimalController MateTarget;
-        private int currentTargetIndexInEat = -1;
-        private Vector2Int TargetPosition = Vector2Int.zero;
-        private int foodCollectedToMate = 0;
+        private AnimalController _target;
+        private AnimalController _mateTarget;
+        private int _currentTargetIndexInEat = -1;
+        private Vector2Int _targetPosition = Vector2Int.zero;
+        private int _foodCollectedToMate = 0;
 
         private const int RANDOM_TICKS = 30;
 
         #region Initialisation
+        /// <summary>
+        /// Initialises the animal with a profile index, the starting position, a compiled profile and the id
+        /// </summary>
+        /// <param name="index">The profile index</param>
+        /// <param name="position">Starting position</param>
+        /// <param name="profile">Compiled animal profile</param>
+        /// <param name="id">Animal ID</param>
         public void InitAnimal(int index, Vector2Int position, CompiledAnimalProfile profile, int id)
         {
-            Manager = WorldManager.main;
+            _manager = WorldManager.main;
             ID = id;
-            Profile = profile;
+            _profile = profile;
             ProfileIndex = index;
             CurrentPosition = position;
 
@@ -45,34 +94,40 @@ namespace EPQ.Animals
             InitMaterial();
             InitEat();
         }
+
+        /// <summary>
+        /// Initialises the animal following what the data files says
+        /// </summary>
+        /// <param name="file">The data file</param>
         public void InitAnimal(ControllerDataFile file)
         {
-            Manager = WorldManager.main;
+            _manager = WorldManager.main;
             InitAttributes(file);
             InitMaterial();
         }
+
         private void InitAttributes()
         {
-            TicksOfFood = Profile.Attributes.FoodRequirement * WorldManager.STARTING_FOOD * WorldManager.TICKS_IN_DAY;
+            TicksOfFood = _profile.Attributes.FoodRequirement * WorldManager.STARTING_FOOD * WorldManager.TICKS_IN_DAY;
             TicksToRegrow = 1;
             TicksToMove = 1;
             IsGrown = true;
-            TargetPosition = GetRandomPosition();
+            _targetPosition = GetRandomPosition();
             transform.position = new Vector3(CurrentPosition.x, 1f, CurrentPosition.y);
         }
         private void InitMaterial()
         {
-            Material = new Material(Manager.BlankMaterial);
-            Material.color = Profile.Color;
-            GetComponent<MeshRenderer>().material = Material;
+            _material = new Material(_manager.BlankMaterial);
+            _material.color = _profile.Color;
+            GetComponent<MeshRenderer>().material = _material;
         }
         private void InitEat()
         {
             SortedEat = new List<int>();
             List<CompiledAnimalProfile> profiles = new List<CompiledAnimalProfile>();
-            for (int i = 0; i < Profile.CanEat.Count; i++)
+            for (int i = 0; i < _profile.CanEat.Count; i++)
             {
-                profiles.Add(Manager.GetProfile(Profile.CanEat[i]));
+                profiles.Add(_manager.GetProfile(_profile.CanEat[i]));
             }
 
             if (profiles.Count == 0)
@@ -97,7 +152,7 @@ namespace EPQ.Animals
                     SortedEat.Add(index);
             }
 
-            currentTargetIndexInEat = SortedEat.Count;
+            _currentTargetIndexInEat = SortedEat.Count;
         }
         private void InitAttributes(ControllerDataFile file)
         {
@@ -110,20 +165,29 @@ namespace EPQ.Animals
             CurrentPosition = new Vector2Int(file.CurrentPositionX, file.CurrentPositionY);
             IsGrown = file.IsGrown;
             SortedEat = new List<int>(file.SortedEat);
-            currentTargetIndexInEat = file.CurrentTargetIndexInEat;
-            TargetPosition = new Vector2Int(file.TagetPositionX, file.TagetPositionY);
-            Profile = Manager.GetProfile(file.ProfileIndex);
+            _currentTargetIndexInEat = file.CurrentTargetIndexInEat;
+            _foodCollectedToMate = file.FoodCollectedToMate;
+            _targetPosition = new Vector2Int(file.TagetPositionX, file.TagetPositionY);
+            _profile = _manager.GetProfile(file.ProfileIndex);
             transform.position = new Vector3(CurrentPosition.x, 1f, CurrentPosition.y);
         }
-        public void InitIndexes(ControllerDataFile file)
+
+        /// <summary>
+        /// Initialises the targets of the animal following what the data file says
+        /// </summary>
+        /// <param name="file">The data file</param>
+        public void InitTargets(ControllerDataFile file)
         {
             if(file.IndexOfTarget != -1)
-                Target = Manager.Controllers[file.IndexOfTarget];
+                _target = _manager.Controllers[file.IndexOfTarget];
             if(file.IndexOfMate != -1)
-                MateTarget = Manager.Controllers[file.IndexOfMate];
+                _mateTarget = _manager.Controllers[file.IndexOfMate];
         }
         #endregion
         #region Tick
+        /// <summary>
+        /// Runs a tick of behaviour on the animal
+        /// </summary>
         public void Tick()
         {
             if (IsAnimal)
@@ -156,9 +220,9 @@ namespace EPQ.Animals
             {
                 Move();
                 if (GetCurrentCell() == WorldCompiler.GRASS_ID)
-                    TicksToMove = (11 - Profile.Attributes.GrassSpeed);
+                    TicksToMove = (11 - _profile.Attributes.GrassSpeed);
                 else
-                    TicksToMove = (11 - Profile.Attributes.WaterSpeed);
+                    TicksToMove = (11 - _profile.Attributes.WaterSpeed);
                 transform.position = new Vector3(CurrentPosition.x, 1f, CurrentPosition.y);
             }
         }
@@ -173,18 +237,18 @@ namespace EPQ.Animals
         }
         private void HandleMateTick()
         {
-            if(MateTarget != null)
+            if(_mateTarget != null)
             {
-                if(CurrentPosition.x == MateTarget.CurrentPosition.x)
+                if(CurrentPosition.x == _mateTarget.CurrentPosition.x)
                 {
-                    if(Mathf.Abs(CurrentPosition.y - MateTarget.CurrentPosition.y) == 1)
+                    if(Mathf.Abs(CurrentPosition.y - _mateTarget.CurrentPosition.y) == 1)
                     {
                         Mate();
                     }
                 }
-                else if(CurrentPosition.y == MateTarget.CurrentPosition.y)
+                else if(CurrentPosition.y == _mateTarget.CurrentPosition.y)
                 {
-                    if (Mathf.Abs(CurrentPosition.x - MateTarget.CurrentPosition.x) == 1)
+                    if (Mathf.Abs(CurrentPosition.x - _mateTarget.CurrentPosition.x) == 1)
                     {
                         Mate();
                     }
@@ -193,75 +257,75 @@ namespace EPQ.Animals
         }
         private void HandleTarget()
         {
-            if(foodCollectedToMate == Profile.Attributes.FoodToReproduce || MateTarget != null)
+            if(_foodCollectedToMate == _profile.Attributes.FoodToReproduce || _mateTarget != null)
             {
-                if(MateTarget == null)
+                if(_mateTarget == null)
                 {
-                    if(Manager.AnimalWorld.ClosestInRadius(ProfileIndex, CurrentPosition.x, CurrentPosition.y, Profile.Attributes.DetectionRange,out int xPos, out int yPos))
+                    if(_manager.AnimalWorld.ClosestInRadius(ProfileIndex, CurrentPosition.x, CurrentPosition.y, _profile.Attributes.DetectionRange,out int xPos, out int yPos))
                     {
-                        AnimalController controller = Manager.ControllersGrid.GetCell(xPos, yPos);
+                        AnimalController controller = _manager.ControllersGrid.GetCell(xPos, yPos);
                         if (controller.OfferMate(this))
                         {
-                            MateTarget = controller;
+                            _mateTarget = controller;
                         }
                     }
                 }
             }
 
-            if (MateTarget != null)
+            if (_mateTarget != null)
                 return;
 
-            if(Target == null)
+            if(_target == null)
             {
-                currentTargetIndexInEat = SortedEat.Count;
+                _currentTargetIndexInEat = SortedEat.Count;
             }
 
-            for (int i = 0; i < currentTargetIndexInEat; i++)
+            for (int i = 0; i < _currentTargetIndexInEat; i++)
             {
                 if (ClosestInRadius(SortedEat[i], out int xPos, out int yPos))
                 {
-                    Target = Manager.ControllersGrid.GetCell(xPos, yPos);
-                    currentTargetIndexInEat = i;
+                    _target = _manager.ControllersGrid.GetCell(xPos, yPos);
+                    _currentTargetIndexInEat = i;
                     return;
                 }
             }
 
-            if (Target != null)
+            if (_target != null)
             {
-                if(Target.IsAnimal == false && Target.IsGrown == false)
+                if(_target.IsAnimal == false && _target.IsGrown == false)
                 {
-                    Target = null;
-                    currentTargetIndexInEat = SortedEat.Count;
+                    _target = null;
+                    _currentTargetIndexInEat = SortedEat.Count;
                     return;
                 }
             }
         }
         private void HandleTargetPosition()
         {
-            if(MateTarget != null)
+            if(_mateTarget != null)
             {
-                TargetPosition = MateTarget.CurrentPosition;
+                _targetPosition = _mateTarget.CurrentPosition;
             }
-            else if (Target != null)
+            else if (_target != null)
             {
-                TargetPosition = Target.CurrentPosition;
+                _targetPosition = _target.CurrentPosition;
             }
             else
             {
-                for (int i = 0; i < Profile.CanBeEatenBy.Count; i++)
+                for (int i = 0; i < _profile.CanBeEatenBy.Count; i++)
                 {
-                    if(ScanRadius(Profile.CanBeEatenBy[i], out int[] xPos, out int[] yPos) > 0)
+                    if(ScanRadius(_profile.CanBeEatenBy[i], out int[] xPos, out int[] yPos) > 0)
                     {
                         Vector2Int average = GetAveragePosition(xPos, yPos);
-                        TargetPosition = GetOppositePosition(average);
+                        _targetPosition = GetOppositePosition(average);
                         return;
                     }
                 }
 
-                if (CurrentPosition == TargetPosition || TicksSinceLastRandom >= RANDOM_TICKS)
+                if (CurrentPosition == _targetPosition || TicksSinceLastRandom >= RANDOM_TICKS)
                 {
                     TicksSinceLastRandom = 0;
-                    TargetPosition = GetRandomPosition();
+                    _targetPosition = GetRandomPosition();
                 }
 
                 TicksSinceLastRandom++;
@@ -269,13 +333,13 @@ namespace EPQ.Animals
         }
         private void HandleExistence()
         {
-            AnimalController controller = Manager.ControllersGrid.GetCell(CurrentPosition.x, CurrentPosition.y);
+            AnimalController controller = _manager.ControllersGrid.GetCell(CurrentPosition.x, CurrentPosition.y);
             if (controller.ID != this.ID)
             {
                 if (CheckIfCanEat(controller.ProfileIndex))
                 {
                     controller.Kill(this);
-                    Manager.SetAnimalCell(CurrentPosition.x, CurrentPosition.y, ProfileIndex, this);
+                    _manager.SetAnimalCell(CurrentPosition.x, CurrentPosition.y, ProfileIndex, this);
                 }
                 else
                 {
@@ -287,57 +351,57 @@ namespace EPQ.Animals
         #region Movement
         private void Move()
         {
-            if (CurrentPosition.x != TargetPosition.x && CurrentPosition.y != TargetPosition.y)
+            if (CurrentPosition.x != _targetPosition.x && CurrentPosition.y != _targetPosition.y)
             {
                 if (Random.Range(0, 2) == 0)
                     MoveX();
                 else
                     MoveY();
             }
-            else if (CurrentPosition.x != TargetPosition.x)
+            else if (CurrentPosition.x != _targetPosition.x)
             {
                 MoveX();
             }
-            else if (CurrentPosition.y != TargetPosition.y)
+            else if (CurrentPosition.y != _targetPosition.y)
             {
                 MoveY();
             }
         }
         private void MoveX()
         {
-            if (CurrentPosition.x < TargetPosition.x)
+            if (CurrentPosition.x < _targetPosition.x)
                 TryMove(new Vector2Int(CurrentPosition.x + 1, CurrentPosition.y));
             else
                 TryMove(new Vector2Int(CurrentPosition.x - 1, CurrentPosition.y));
         }
         private void MoveY()
         {
-            if (CurrentPosition.y < TargetPosition.y)
+            if (CurrentPosition.y < _targetPosition.y)
                 TryMove(new Vector2Int(CurrentPosition.x, CurrentPosition.y + 1));
             else
                 TryMove(new Vector2Int(CurrentPosition.x, CurrentPosition.y - 1));
         }
         private void TryMove(Vector2Int position)
         {
-            if(Target != null)
+            if(_target != null)
             {
-                if(position == Target.CurrentPosition)
+                if(position == _target.CurrentPosition)
                 {
                     MoveAnimal(position);
                     return;
                 }
             }
-            if (Manager.AnimalWorld.GetCell(position.x, position.y) == -1)
+            if (_manager.AnimalWorld.GetCell(position.x, position.y) == -1)
             {
                 MoveAnimal(position);
             }
-            else if (CanEatIndex(Manager.AnimalWorld.GetCell(position.x, position.y)))
+            else if (CanEatIndex(_manager.AnimalWorld.GetCell(position.x, position.y)))
             {
                 MoveAnimal(position);
             }
             else if (position.x == CurrentPosition.x)
             {
-                if (Manager.AnimalWorld.InBounds(position.x, position.y + 1))
+                if (_manager.AnimalWorld.InBounds(position.x, position.y + 1))
                 {
                     if (GetAnimalCell(new Vector2Int(position.x, position.y + 1)) == -1)
                     {
@@ -345,7 +409,7 @@ namespace EPQ.Animals
                         return;
                     }
                 }
-                if (Manager.AnimalWorld.InBounds(position.x, position.y - 1))
+                if (_manager.AnimalWorld.InBounds(position.x, position.y - 1))
                 {
                     if (GetAnimalCell(new Vector2Int(position.x, position.y - 1)) == -1)
                     {
@@ -356,7 +420,7 @@ namespace EPQ.Animals
             }
             else if (position.y == CurrentPosition.y)
             {
-                if (Manager.AnimalWorld.InBounds(position.x + 1, position.y))
+                if (_manager.AnimalWorld.InBounds(position.x + 1, position.y))
                 {
                     if (GetAnimalCell(new Vector2Int(position.x + 1, position.y)) == -1)
                     {
@@ -364,7 +428,7 @@ namespace EPQ.Animals
                         return;
                     }
                 }
-                if (Manager.AnimalWorld.InBounds(position.x - 1, position.y))
+                if (_manager.AnimalWorld.InBounds(position.x - 1, position.y))
                 {
                     if (GetAnimalCell(new Vector2Int(position.x - 1, position.y)) == -1)
                     {
@@ -376,26 +440,34 @@ namespace EPQ.Animals
         }
         private void MoveAnimal(Vector2Int position)
         {
-            Vector2Int actualPosition = Manager.AnimalWorld.PutInBounds(position);
-            Manager.MoveAnimal(CurrentPosition.x, CurrentPosition.y, actualPosition.x, actualPosition.y, this);
+            Vector2Int actualPosition = _manager.AnimalWorld.PutInBounds(position);
+            _manager.MoveAnimal(CurrentPosition.x, CurrentPosition.y, actualPosition.x, actualPosition.y, this);
             CurrentPosition = actualPosition;
         }
         #endregion
         #region Death
+        /// <summary>
+        /// Kills the animal or sets the plant to not being available for eating
+        /// </summary>
         public void Kill()
         {
             if (IsAnimal)
             {
-                if (Manager.AnimalWorld.GetCell(CurrentPosition.x, CurrentPosition.y) == ProfileIndex)
-                    Manager.DeleteAnimal(CurrentPosition.x, CurrentPosition.y);
+                if (_manager.AnimalWorld.GetCell(CurrentPosition.x, CurrentPosition.y) == ProfileIndex)
+                    _manager.DeleteAnimal(CurrentPosition.x, CurrentPosition.y);
                 Destroy(gameObject);
             }
             else
                 Eat();
         }
+
+        /// <summary>
+        /// Kills the animal or sets the plant to not being available for eating. Feeds the controller eating it.
+        /// </summary>
+        /// <param name="controller"></param>
         public void Kill(AnimalController controller)
         {
-            controller.Feed(Profile.Attributes.FoodValue);
+            controller.Feed(_profile.Attributes.FoodValue);
             if (IsAnimal)
                 Destroy(gameObject);
             else
@@ -404,76 +476,91 @@ namespace EPQ.Animals
         private void Eat()
         {
             IsGrown = false;
-            TicksToRegrow = (Profile.Attributes.TimeToRegrow / 8) * WorldManager.TICKS_IN_DAY;
+            TicksToRegrow = (_profile.Attributes.TimeToRegrow / 8) * WorldManager.TICKS_IN_DAY;
             GetComponent<MeshRenderer>().enabled = false;
         }
+
+        /// <summary>
+        /// Feeds the animal
+        /// </summary>
+        /// <param name="foodValue">The amount of food</param>
         public void Feed(int foodValue)
         {
-            TicksOfFood += (foodValue * WorldManager.TICKS_IN_DAY) / Profile.Attributes.FoodRequirement;
-            if (foodCollectedToMate < Profile.Attributes.FoodToReproduce)
-                foodCollectedToMate++;
-            if (foodCollectedToMate == Profile.Attributes.FoodToReproduce && Profile.Attributes.RequiresMate == false)
+            TicksOfFood += (foodValue * WorldManager.TICKS_IN_DAY) / _profile.Attributes.FoodRequirement;
+            if (_foodCollectedToMate < _profile.Attributes.FoodToReproduce)
+                _foodCollectedToMate++;
+            if (_foodCollectedToMate == _profile.Attributes.FoodToReproduce && _profile.Attributes.RequiresMate == false)
                 SelfMate();
         }
         #endregion
         #region Reproduction
         private void Mate()
         {
-            foodCollectedToMate = 0;
-            MateTarget.Mated();
-            MateTarget = null;
+            _foodCollectedToMate = 0;
+            _mateTarget.Mated();
+            _mateTarget = null;
             PlaceChild();
         }
         private void SelfMate()
         {
-            foodCollectedToMate = 0;
+            _foodCollectedToMate = 0;
             PlaceChild();
         }
         private void PlaceChild()
         {
-            if (Manager.AnimalWorld.InBounds(CurrentPosition.x + 1, CurrentPosition.y))
+            if (_manager.AnimalWorld.InBounds(CurrentPosition.x + 1, CurrentPosition.y))
             {
-                if (Manager.AnimalWorld.GetCell(CurrentPosition.x + 1, CurrentPosition.y) == -1)
+                if (_manager.AnimalWorld.GetCell(CurrentPosition.x + 1, CurrentPosition.y) == -1)
                 {
-                    Manager.CreateAnimal(CurrentPosition.x + 1, CurrentPosition.y, ProfileIndex);
+                    _manager.CreateAnimal(CurrentPosition.x + 1, CurrentPosition.y, ProfileIndex);
                     return;
                 }
             }
-            if (Manager.AnimalWorld.InBounds(CurrentPosition.x - 1, CurrentPosition.y))
+            if (_manager.AnimalWorld.InBounds(CurrentPosition.x - 1, CurrentPosition.y))
             {
-                if (Manager.AnimalWorld.GetCell(CurrentPosition.x - 1, CurrentPosition.y) == -1)
+                if (_manager.AnimalWorld.GetCell(CurrentPosition.x - 1, CurrentPosition.y) == -1)
                 {
-                    Manager.CreateAnimal(CurrentPosition.x - 1, CurrentPosition.y, ProfileIndex);
+                    _manager.CreateAnimal(CurrentPosition.x - 1, CurrentPosition.y, ProfileIndex);
                     return;
                 }
             }
-            if (Manager.AnimalWorld.InBounds(CurrentPosition.x, CurrentPosition.y + 1))
+            if (_manager.AnimalWorld.InBounds(CurrentPosition.x, CurrentPosition.y + 1))
             {
-                if (Manager.AnimalWorld.GetCell(CurrentPosition.x, CurrentPosition.y + 1) == -1)
+                if (_manager.AnimalWorld.GetCell(CurrentPosition.x, CurrentPosition.y + 1) == -1)
                 {
-                    Manager.CreateAnimal(CurrentPosition.x, CurrentPosition.y + 1, ProfileIndex);
+                    _manager.CreateAnimal(CurrentPosition.x, CurrentPosition.y + 1, ProfileIndex);
                     return;
                 }
             }
-            if (Manager.AnimalWorld.InBounds(CurrentPosition.x, CurrentPosition.y - 1))
+            if (_manager.AnimalWorld.InBounds(CurrentPosition.x, CurrentPosition.y - 1))
             {
-                if (Manager.AnimalWorld.GetCell(CurrentPosition.x, CurrentPosition.y - 1) == -1)
+                if (_manager.AnimalWorld.GetCell(CurrentPosition.x, CurrentPosition.y - 1) == -1)
                 {
-                    Manager.CreateAnimal(CurrentPosition.x, CurrentPosition.y - 1, ProfileIndex);
+                    _manager.CreateAnimal(CurrentPosition.x, CurrentPosition.y - 1, ProfileIndex);
                     return;
                 }
             }
         }
+
+        /// <summary>
+        /// Signals that the animal has mated
+        /// </summary>
         public void Mated()
         {
-            MateTarget = null;
-            foodCollectedToMate = 0;
+            _mateTarget = null;
+            _foodCollectedToMate = 0;
         }
+
+        /// <summary>
+        /// Checks if the animal is available for mating
+        /// </summary>
+        /// <param name="controller">The other mate</param>
+        /// <returns></returns>
         public bool OfferMate(AnimalController controller)
         {
-            if (MateTarget == null)
+            if (_mateTarget == null)
             {
-                MateTarget = controller;
+                _mateTarget = controller;
                 return true;
             }
             return false;
@@ -498,28 +585,57 @@ namespace EPQ.Animals
         private Vector2Int GetOppositePosition(Vector2Int position)
         {
             Vector2Int difference = CurrentPosition - position;
-            return Manager.AnimalWorld.PutInBounds(CurrentPosition + difference + new Vector2Int(Random.Range(-1, 2), Random.Range(-1, 2)));
+            return _manager.AnimalWorld.PutInBounds(CurrentPosition + difference + new Vector2Int(Random.Range(-1, 2), Random.Range(-1, 2)));
         }
-        private Vector2Int GetRandomPosition() => Manager.AnimalWorld.GetRandomPosition();
+        private Vector2Int GetRandomPosition() => _manager.AnimalWorld.GetRandomPosition();
         private void PlaceInPosition()
         {
             if (GetCurrentAnimalCell() == -1)
             {
-                Manager.SetAnimalCell(CurrentPosition.x, CurrentPosition.y, ProfileIndex, this);
+                _manager.SetAnimalCell(CurrentPosition.x, CurrentPosition.y, ProfileIndex, this);
                 GetComponent<MeshRenderer>().enabled = true;
             }
         }
         #endregion
         #region Scanning
-        private bool ClosestInRadius(int index, out int xPos, out int yPos) => Manager.AnimalWorld.ClosestInRadius(index, CurrentPosition.x, CurrentPosition.y, Profile.Attributes.DetectionRange, out xPos, out yPos);
-        private int ScanRadius(int index, out int[] xPos, out int[] yPos) => Manager.AnimalWorld.NumberInRadius(index, CurrentPosition.x, CurrentPosition.y, Profile.Attributes.DetectionRange, out xPos, out yPos);
+        private bool ClosestInRadius(int index, out int xPos, out int yPos) => _manager.AnimalWorld.ClosestInRadius(index, CurrentPosition.x, CurrentPosition.y, _profile.Attributes.DetectionRange, out xPos, out yPos);
+        private int ScanRadius(int index, out int[] xPos, out int[] yPos) => _manager.AnimalWorld.NumberInRadius(index, CurrentPosition.x, CurrentPosition.y, _profile.Attributes.DetectionRange, out xPos, out yPos);
         #endregion
         #region World
-        private int GetAnimalCell(Vector2Int position) => Manager.AnimalWorld.GetCell(position.x, position.y);
-        private int GetCurrentCell() => Manager.GetGroundCell(CurrentPosition.x, CurrentPosition.y);
-        private int GetCurrentAnimalCell() => Manager.GetAnimalCell(CurrentPosition.x, CurrentPosition.y);
+        private int GetAnimalCell(Vector2Int position) => _manager.AnimalWorld.GetCell(position.x, position.y);
+        private int GetCurrentCell() => _manager.GetGroundCell(CurrentPosition.x, CurrentPosition.y);
+        private int GetCurrentAnimalCell() => _manager.GetAnimalCell(CurrentPosition.x, CurrentPosition.y);
         #endregion
         #region Other
+        /// <summary>
+        /// Creates a data file containing the information inside the animal
+        /// </summary>
+        /// <returns>A data file</returns>
+        public ControllerDataFile CreateDataFile()
+        {
+            ControllerDataFile data = new ControllerDataFile()
+            {
+                ID = ID,
+                ProfileIndex = ProfileIndex,
+                TicksOfFood = TicksOfFood,
+                TicksToRegrow = TicksToRegrow,
+                TicksToMove = TicksToMove,
+                TicksSinceLastRandom = TicksSinceLastRandom,
+                IsGrown = IsGrown,
+                SortedEat = SortedEat.ToArray(),
+                FoodCollectedToMate = _foodCollectedToMate,
+
+                CurrentTargetIndexInEat = _currentTargetIndexInEat,
+                IndexOfTarget = GetIndexOfController(_target),
+                IndexOfMate = GetIndexOfController(_mateTarget),
+
+                CurrentPositionX = CurrentPosition.x,
+                CurrentPositionY = CurrentPosition.y,
+                TagetPositionX = _targetPosition.x,
+                TagetPositionY = _targetPosition.y
+            };
+            return data;
+        }
         private bool CanEatIndex(int index)
         {
             for (int i = 0; i < SortedEat.Count; i++)
@@ -538,38 +654,13 @@ namespace EPQ.Animals
             }
             return false;
         }
-        public ControllerDataFile CreateDataFile()
-        {
-            ControllerDataFile data = new ControllerDataFile()
-            {
-                ID = ID,
-                ProfileIndex = ProfileIndex,
-                TicksOfFood = TicksOfFood,
-                TicksToRegrow = TicksToRegrow,
-                TicksToMove = TicksToMove,
-                TicksSinceLastRandom = TicksSinceLastRandom,
-                IsGrown = IsGrown,
-                SortedEat = SortedEat.ToArray(),
-                FoodCollectedToMate = foodCollectedToMate,
-
-                CurrentTargetIndexInEat = currentTargetIndexInEat,
-                IndexOfTarget = GetIndexOfController(Target),
-                IndexOfMate = GetIndexOfController(MateTarget),
-
-                CurrentPositionX = CurrentPosition.x,
-                CurrentPositionY = CurrentPosition.y,
-                TagetPositionX = TargetPosition.x,
-                TagetPositionY= TargetPosition.y
-            };
-            return data;
-        }
         private int GetIndexOfController(AnimalController controller)
         {
             if (controller == null)
                 return -1;
-            for (int i = 0; i < Manager.Controllers.Count; i++)
+            for (int i = 0; i < _manager.Controllers.Count; i++)
             {
-                if (controller.ID == Manager.Controllers[i].ID)
+                if (controller.ID == _manager.Controllers[i].ID)
                     return i;
             }
             return -1;

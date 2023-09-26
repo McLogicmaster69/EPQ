@@ -7,15 +7,18 @@ using UnityEngine.UI;
 
 namespace EPQ.UI
 {
+    /// <summary>
+    /// Controls all the menus that are displayed to the user
+    /// </summary>
     public class UINavigator : MonoBehaviour
     {
         public static UINavigator main;
 
-        public Button[] Buttons;
-        public GameObject[] Panels;
-        public int CurrentSelected;
-        public Color SelectedColor;
-        public Color UnselectedColor;
+        [SerializeField] private Button[] Buttons;
+        [SerializeField] private GameObject[] Panels;
+        [SerializeField] private int CurrentSelected;
+        [SerializeField] private Color SelectedColor;
+        [SerializeField] private Color UnselectedColor;
 
         private int frame = 0;
 

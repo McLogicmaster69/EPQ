@@ -5,20 +5,34 @@ using UnityEngine;
 
 namespace EPQ
 {
+    /// <summary>
+    /// Gives a constant and regular tick output
+    /// </summary>
     public class Clock : MonoBehaviour
     {
         public static Clock main;
 
-        public event EventHandler<TickEventArgs> Tick;
-        public bool IsTicking = false;
-        public float Interval = 0.1f;
-        public bool handledTick = true;
+        /// <summary>
+        /// If the clock is giving out a tick
+        /// </summary>
+        public bool IsTicking { get; set; } = false;
 
-        private float counter = 0f;
+        /// <summary>
+        /// The interval that a tick occurs
+        /// </summary>
+        public float Interval { get; set; } = 0.1f;
 
-        public class TickEventArgs
-        {
-        }
+        /// <summary>
+        /// If the previous tick has been handled
+        /// </summary>
+        public bool HandledTick { get; set; } = true;
+
+        /// <summary>
+        /// Called when the clock ticks
+        /// </summary>
+        public event TickEvent Tick;
+
+        private float _counter = 0f;
 
         private void Awake()
         {
@@ -28,17 +42,20 @@ namespace EPQ
         {
             if (IsTicking)
             {
-                if(counter <= 0f)
+                if(_counter <= 0f)
                 {
-                    counter = Interval;
-                    handledTick = false;
+                    _counter = Interval;
+                    HandledTick = false;
                     DoTick();
                 }
-                if(handledTick)
-                    counter -= Time.deltaTime;
+                if(HandledTick)
+                    _counter -= Time.deltaTime;
             }
         }
 
+        /// <summary>
+        /// Forces the next tick to occur
+        /// </summary>
         public void DoTick()
         {
             Tick?.Invoke(this, new TickEventArgs());

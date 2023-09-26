@@ -5,22 +5,28 @@ using UnityEngine.UI;
 
 namespace EPQ.Animals
 {
+    /// <summary>
+    /// Manages the UI related to the behaviour of an animal
+    /// </summary>
     public class BehaviourUINavigator : MonoBehaviour
     {
         public static BehaviourUINavigator main;
 
-        public GameObject BehaviourUI;
-        public GameObject AnimalToggle;
-        public GameObject PlantToggle;
-        public GameObject AnimalAttributes;
-        public GameObject PlantAttributes;
-        public Toggle RequiresMateToggle;
+        [SerializeField] private GameObject BehaviourUI;
+        [SerializeField] private GameObject AnimalToggle;
+        [SerializeField] private GameObject PlantToggle;
+        [SerializeField] private GameObject AnimalAttributes;
+        [SerializeField] private GameObject PlantAttributes;
+        [SerializeField] private Toggle RequiresMateToggle;
 
-        public Color AnimalColor;
-        public Color PlantColor;
+        [SerializeField] private Color AnimalColor;
+        [SerializeField] private Color PlantColor;
 
-        public HelpMessage[] HelpMessages;
-        public AttributeSlider[] Sliders;
+        [SerializeField] private HelpMessage[] HelpMessages;
+        [SerializeField] private AttributeSlider[] Sliders;
+
+        public Color ColorAnimal { get { return AnimalColor; } }
+        public Color ColorPlant { get { return PlantColor; } }
 
         private AnimalProfile animalProfile;
         private System.Action<int>[] UpdateMethods = new System.Action<int>[] { 

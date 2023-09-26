@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace EPQ.Animals
 {
+    /// <summary>
+    /// A class containing data required for an animal to be ran in the simulation
+    /// </summary>
     public class CompiledAnimalProfile
     {
         public readonly int ID;
@@ -15,6 +18,10 @@ namespace EPQ.Animals
         public Color Color;
         public readonly AnimalAttributes Attributes;
 
+        /// <summary>
+        /// Creates a compiled profile from an existing profile
+        /// </summary>
+        /// <param name="profile"></param>
         public CompiledAnimalProfile(AnimalProfile profile)
         {
             ID = profile.ID;
@@ -49,6 +56,11 @@ namespace EPQ.Animals
                 }
             }
         }
+
+        /// <summary>
+        /// Creates a duplicate compiled file
+        /// </summary>
+        /// <param name="profile"></param>
         public CompiledAnimalProfile(CompiledAnimalDataFile profile)
         {
             ID = profile.ID;

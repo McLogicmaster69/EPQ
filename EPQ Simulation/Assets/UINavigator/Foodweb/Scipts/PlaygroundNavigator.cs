@@ -10,6 +10,9 @@ using UnityEngine;
 
 namespace EPQ.Foodweb
 {
+    /// <summary>
+    /// Controls how the user interacts with the food web
+    /// </summary>
     public class PlaygroundNavigator : MonoBehaviour
     {
         public static PlaygroundNavigator main;
@@ -33,19 +36,8 @@ namespace EPQ.Foodweb
         private float oldScale = 1f;
         private int CurrentLineID = 0;
 
-        public event EventHandler<OnPlaygroundMoveEventArgs> OnPlaygroundMove;
-        public event EventHandler<OnPlaygroundScaleEventArgs> OnPlaygroundScale;
-
-        public class OnPlaygroundMoveEventArgs : EventArgs
-        {
-            public Vector3 movement;
-        }
-        public class OnPlaygroundScaleEventArgs : EventArgs
-        {
-            public Vector2 Centre;
-            public float OldScale;
-            public float NewScale;
-        }
+        public event MoveEvent OnPlaygroundMove;
+        public event ScaleEvent OnPlaygroundScale;
 
         private void Awake()
         {
@@ -78,13 +70,13 @@ namespace EPQ.Foodweb
             ChildObjects.transform.position += movement;
 
             if(horizontalInp != 0 || verticalInp != 0)
-                OnPlaygroundMove?.Invoke(this, new OnPlaygroundMoveEventArgs { movement = movement });
+                OnPlaygroundMove?.Invoke(this, new MoveEventArgs { Movement = movement });
 
             if (Input.GetKey(KeyCode.R))
             {
                 Vector3 requiredMovement = ChildObjects.GetComponent<RectTransform>().anchoredPosition3D;
                 ChildObjects.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-                OnPlaygroundMove?.Invoke(this, new OnPlaygroundMoveEventArgs { movement = -requiredMovement });
+                OnPlaygroundMove?.Invoke(this, new MoveEventArgs { Movement = -requiredMovement });
             }
 
             Scale += Input.mouseScrollDelta.y * 0.1f;
@@ -97,7 +89,7 @@ namespace EPQ.Foodweb
                 Vector2 zoomAdjustment = (position * (Scale - oldScale)) / oldScale;
                 ChildObjects.GetComponent<RectTransform>().anchoredPosition += zoomAdjustment;
 
-                OnPlaygroundScale?.Invoke(this, new OnPlaygroundScaleEventArgs { Centre = -ChildObjects.GetComponent<RectTransform>().anchoredPosition, OldScale = oldScale, NewScale = Scale });
+                OnPlaygroundScale?.Invoke(this, new ScaleEventArgs { Centre = -ChildObjects.GetComponent<RectTransform>().anchoredPosition, OldScale = oldScale, NewScale = Scale });
                 oldScale = Scale;
             }
 

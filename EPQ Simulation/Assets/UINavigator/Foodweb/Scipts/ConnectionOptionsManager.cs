@@ -6,16 +6,34 @@ using UnityEngine;
 
 namespace EPQ.Foodweb.Connections
 {
+    /// <summary>
+    /// Manages the connection between two nodes on the food web
+    /// </summary>
     public class ConnectionOptionsManager : MonoBehaviour
     {
-        public NodeLineConnector Connector;
-        public LineConnection Profile;
-        public AnimalProfile Target1;
-        public AnimalProfile Target2;
+        /// <summary>
+        /// The visual connection between two nodes
+        /// </summary>
+        public NodeLineConnector Connector { get; set; }
 
-        public TMP_Text Target1Text;
-        public TMP_Text Target2Text;
-        public TMP_Text TwoWayText;
+        /// <summary>
+        /// The information about the connection
+        /// </summary>
+        public LineConnection Profile { get; set; }
+
+        /// <summary>
+        /// The animal being eaten
+        /// </summary>
+        public AnimalProfile Target1 { get; set; }
+
+        /// <summary>
+        /// The animal that is eating
+        /// </summary>
+        public AnimalProfile Target2 { get; set; }
+
+        [SerializeField] private TMP_Text Target1Text;
+        [SerializeField] private TMP_Text Target2Text;
+        [SerializeField] private TMP_Text TwoWayText;
 
         private void Update()
         {

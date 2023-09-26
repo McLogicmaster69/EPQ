@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EPQ.Animals
+namespace EPQ
 {
-    public class AnimalBase : MonoBehaviour
+    public class TickEventArgs
     {
-
     }
 }

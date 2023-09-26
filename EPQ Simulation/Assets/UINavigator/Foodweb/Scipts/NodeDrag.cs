@@ -6,6 +6,9 @@ using UnityEngine.EventSystems;
 
 namespace EPQ.Foodweb.Nodes
 {
+    /// <summary>
+    /// Gives the functionality to a node to be able to be dragged by the user
+    /// </summary>
     public class NodeDrag : MonoBehaviour, IPointerClickHandler
     {
         private Canvas canvas;
@@ -40,14 +43,14 @@ namespace EPQ.Foodweb.Nodes
             }
         }
 
-        private void PlaygroundMovement(object sender, PlaygroundNavigator.OnPlaygroundMoveEventArgs e)
+        private void PlaygroundMovement(object sender, MoveEventArgs e)
         {
             if (prepareDrag)
             {
                 canDrag = true;
             }
         }
-        private void PlaygroundScale(object sender, PlaygroundNavigator.OnPlaygroundScaleEventArgs e)
+        private void PlaygroundScale(object sender, ScaleEventArgs e)
         {
             if (prepareDrag)
             {

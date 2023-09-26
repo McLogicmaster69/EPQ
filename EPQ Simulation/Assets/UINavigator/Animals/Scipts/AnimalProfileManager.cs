@@ -1,3 +1,4 @@
+using EPQ.Colors;
 using EPQ.UI;
 using System;
 using System.Collections;
@@ -9,6 +10,9 @@ using static EPQ.Animals.AnimalProfile;
 
 namespace EPQ.Animals
 {
+    /// <summary>
+    /// Manages the UI display of an animal profile
+    /// </summary>
     public class AnimalProfileManager : MonoBehaviour
     {
         public int Index;
@@ -17,11 +21,15 @@ namespace EPQ.Animals
         public Image BackgroundColor;
         public AttributeSlider BatchSizeSlider;
 
+        /// <summary>
+        /// Setups the manager and relates it to a given profile
+        /// </summary>
+        /// <param name="profile">The profile managed by the class</param>
         public void SetupWithProfile(AnimalProfile profile)
         {
             SetName(profile.Name);
             ColorCode.color = profile.ColorCode;
-            BackgroundColor.color = profile.IsAnimal ? BehaviourUINavigator.main.AnimalColor : BehaviourUINavigator.main.PlantColor;
+            BackgroundColor.color = profile.IsAnimal ? BehaviourUINavigator.main.ColorAnimal : BehaviourUINavigator.main.ColorPlant;
             profile.OnColorChange += OnColorChange;
             profile.OnAnimalChange += OnAnimalToggle;
             BatchSizeSlider.InitSlider((int value) => { AnimalUINavigator.main.Profiles[Index].BatchSize = value; });

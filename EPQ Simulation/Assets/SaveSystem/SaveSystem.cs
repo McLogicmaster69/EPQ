@@ -4,6 +4,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace  EPQ.Data
 {
+    /// <summary>
+    /// Can save and load files
+    /// </summary>
     public static class SaveSystem
     {
         public static void Save<T>(T file, string fileName, string fileExtension)

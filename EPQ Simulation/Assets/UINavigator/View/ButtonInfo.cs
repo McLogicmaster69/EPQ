@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 namespace EPQ.View
 {
+    /// <summary>
+    /// Contains information about a button
+    /// </summary>
     [System.Serializable]
     public class ButtonInfo
     {
